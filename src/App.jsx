@@ -762,7 +762,7 @@ export default function MastersApp() {
       {/* Redesigned Header */}
       <div className="bg-white pt-6 pb-4 px-4 shadow-sm border-b rounded-b-3xl">
         <h1 className="text-2xl font-bold text-gray-800 mb-4">
-          Привіт, Віталік 👋
+          Привіт, Віталік 👋 V1.2
         </h1>
 
         {/* Dashboard Cards */}
