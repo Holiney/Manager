@@ -560,10 +560,98 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       setSync('saved');
     } catch (e) { setSync(hasData() ? 'error' : 'local'); }
   }
+  /* ---------- Supabase backend (used when the host page provides window.masterSb) ---------- */
+  let sbUser = null, sbMode = false, loginShown = false;
+  function sbRefs(sb, uid) {
+    const T = () => sb.from('app_docs');
+    const one = (kind, id) => ({
+      async set(data) { const r = await T().upsert({ user_id: uid, kind, id, data, updated_at: new Date().toISOString() }); if (r.error) throw r.error; },
+      async delete() { const r = await T().delete().match({ user_id: uid, kind, id }); if (r.error) throw r.error; }
+    });
+    return {
+      core: Object.assign(one('core', 'core'), {
+        async get() { const r = await T().select('data').match({ user_id: uid, kind: 'core', id: 'core' }).maybeSingle(); if (r.error) throw r.error; const d = r.data; return { exists: !!d, data: () => (d ? d.data : null) }; }
+      }),
+      jobs: {
+        async get() { const r = await T().select('data').match({ user_id: uid, kind: 'job' }); if (r.error) throw r.error; const rows = r.data || []; return { empty: !rows.length, docs: rows.map((x) => ({ data: () => x.data })) }; },
+        doc: (id) => one('job', id)
+      }
+    };
+  }
+  const newer = (a, b) => ((b.updatedAt || b.createdAt || 0) > (a.updatedAt || a.createdAt || 0) ? b : a);
+  function mergeStates(a, b) {
+    const byId = (x, y, pick) => { const m = new Map(x.map((i) => [i.id, i])); y.forEach((i) => { m.set(i.id, m.has(i.id) ? pick(m.get(i.id), i) : i); }); return Array.from(m.values()); };
+    return migrate({
+      clients: byId(a.clients, b.clients, newer), jobs: byId(a.jobs, b.jobs, newer),
+      workers: byId(a.workers, b.workers, (x) => x)
+    });
+  }
+  async function sbFirstSync() {
+    const res = await Promise.all([refs.core.get(), refs.jobs.get()]);
+    const c = res[0], js = res[1];
+    if (!c.exists && js.empty) { if (hasData()) { dirty = true; flush(); } else setSync('saved'); return; }
+    const cd = c.data() || {};
+    const remote = migrate({ clients: cd.clients || [], workers: cd.workers, jobs: js.docs.map((d) => d.data()) });
+    S = mergeStates(S, remote);
+    synced = new Map(remote.jobs.map((j) => [j.id, JSON.stringify(j)]));
+    syncedCore = JSON.stringify({ clients: remote.clients, workers: remote.workers });
+    dirty = true; saveLocal(true); flush();
+    if (!sheetState) render();
+  }
+  async function sbStart(user) {
+    sbUser = user; refs = sbRefs(window.masterSb, user.id); setSync('saving');
+    try {
+      const prev = tryLS(() => localStorage.getItem('masters.sbuid'));
+      if (prev && prev !== user.id) { S = migrate({ clients: [], jobs: [] }); saveLocal(false); }
+      if (prev !== user.id) { await sbFirstSync(); tryLS(() => localStorage.setItem('masters.sbuid', user.id)); }
+      else if (localDirty) { dirty = true; flush(); } else await pull();
+    } catch (e) { setSync('error'); }
+    if (!sheetState) render();
+  }
+  function loginSheet(msg) {
+    openSheet({
+      title: 'Вхід в акаунт', submit: 'Увійти',
+      body: '<p class="formnote" style="margin-top:0">Дані зберігаються на сервері й доступні з будь-якого пристрою, де ви увійшли.</p>' +
+        '<div class="field"><label for="sb-email">Пошта</label><input id="sb-email" name="email" type="email" autocomplete="email" required data-autofocus></div>' +
+        '<div class="field"><label for="sb-pass">Пароль</label><input id="sb-pass" name="password" type="password" autocomplete="current-password" minlength="6" required></div>' +
+        '<p class="formnote" id="sb-err" role="alert">' + esc(msg || '') + '</p>' +
+        '<div class="btnrow"><button type="button" class="btn" data-act="sb-signup">Створити акаунт</button></div>',
+      onSubmit(fd) { sbAuth('in', String(fd.get('email') || ''), String(fd.get('password') || '')); return false; }
+    });
+  }
+  async function sbAuth(mode, email, pass) {
+    const err = $('#sb-err'); const say = (m) => { if (err) err.textContent = m; };
+    email = email.trim(); if (!email || pass.length < 6) { say('Вкажіть пошту й пароль (мінімум 6 символів).'); return; }
+    say('Зачекайте…');
+    try {
+      const sb = window.masterSb;
+      const r = mode === 'up' ? await sb.auth.signUp({ email, password: pass }) : await sb.auth.signInWithPassword({ email, password: pass });
+      if (r.error) { say(r.error.message || 'Не вдалося увійти.'); return; }
+      const sess = r.data && r.data.session;
+      if (!sess) { say('Акаунт створено. Підтвердіть пошту за листом і увійдіть.'); return; }
+      closeSheet(); toast('Ви увійшли'); await sbStart(sess.user);
+    } catch (e) { say('Немає зв’язку з сервером.'); }
+  }
+  async function sbSignOut() {
+    try { await window.masterSb.auth.signOut(); } catch (e) { /* ignore */ }
+    refs = null; sbUser = null; dirty = false; setSync('local'); closeSheet(); toast('Ви вийшли. Дані на цьому пристрої лишились.');
+  }
+  async function initSb() {
+    sbMode = true;
+    try {
+      const r = await window.masterSb.auth.getSession();
+      const sess = r && r.data && r.data.session;
+      if (sess) { await sbStart(sess.user); return; }
+    } catch (e) { /* offline: stay local */ }
+    setSync('local');
+    if (!loginShown && navigator.onLine) { loginShown = true; setTimeout(() => { if (!sheetState) loginSheet(); }, 600); }
+  }
+
   async function initDb() {
     try {
       let tries = 0;
-      while (!(window.claude && window.claude.use) && tries < 6) { await new Promise((r) => setTimeout(r, 250)); tries++; }
+      while (!('masterSb' in window) && !(window.claude && window.claude.use) && tries < 12) { await new Promise((r) => setTimeout(r, 250)); tries++; }
+      if (window.masterSb) { await initSb(); return; }
       if (!(window.claude && window.claude.use)) return;
       const both = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
       const db = both[0], user = both[1];
@@ -1123,7 +1211,8 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
   function settingsSheet() {
     openSheet({
       title: 'Налаштування', submit: 'Готово',
-      body: '<div class="field"><span class="lbl">Команда</span><div class="btnrow"><button type="button" class="btn" data-act="team">' + icon('users') + 'Працівники і ставки</button></div></div>' +
+      body: (sbMode ? '<div class="field"><span class="lbl">Акаунт</span>' + (sbUser ? '<p class="formnote" style="margin:0 0 8px">' + esc(sbUser.email || '') + '</p><div class="btnrow"><button type="button" class="btn" data-act="sb-signout">Вийти</button></div>' : '<div class="btnrow"><button type="button" class="btn btn-primary" data-act="sb-login">Увійти</button></div>') + '</div>' : '') +
+        '<div class="field"><span class="lbl">Команда</span><div class="btnrow"><button type="button" class="btn" data-act="team">' + icon('users') + 'Працівники і ставки</button></div></div>' +
         '<div class="field"><span class="lbl">Резервна копія</span><div class="btnrow"><button type="button" class="btn" data-act="export-file">Зберегти файл</button><button type="button" class="btn" data-act="export-copy">Копіювати JSON</button></div></div>' +
         '<div class="field"><label for="imp-text">Імпорт (нова або стара версія)</label><textarea id="imp-text" rows="3" placeholder="Вставте JSON сюди"></textarea>' +
         '<input id="imp-file" type="file" accept=".json,application/json" aria-label="Файл імпорту"><div class="btnrow"><button type="button" class="btn" data-act="import-run">Додати до моїх даних</button></div>' +
@@ -1271,7 +1360,10 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
         const el = $('#toast'), b = el._before; if (!b) break;
         S = migrate(JSON.parse(b)); el.hidden = true; el._before = null; save(); render(); break;
       }
-      case 'retry-sync': if (refs) { dirty = true; setSync('saving'); flush(); } break;
+      case 'retry-sync': if (refs) { dirty = true; setSync('saving'); flush(); } else if (sbMode) loginSheet(); break;
+      case 'sb-signup': { const e1 = $('#sb-email'), p1 = $('#sb-pass'); sbAuth('up', e1 ? e1.value : '', p1 ? p1.value : ''); break; }
+      case 'sb-login': loginSheet(); break;
+      case 'sb-signout': sbSignOut(); break;
       case 'load-sample': { const s = sampleData(); s.jobs.forEach((j) => deriveTeam(j, ownerId())); change(() => { if (!S.workers.some((w) => w.id === 'partner')) S.workers.push({ id: 'partner', name: 'Міша', rate: DEFAULT_RATE }); S.clients = S.clients.concat(s.clients); S.jobs = S.jobs.concat(s.jobs); }, null); break; }
       case 'clear-sample': change(() => { S.clients = S.clients.filter((c) => !c.sample); S.jobs = S.jobs.filter((j) => !j.sample); }, 'Приклад прибрано'); break;
       case 'export-copy': {
@@ -1337,4 +1429,5 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
 })();
 </script>
 
+<script type="module" src="/src/sb.js"></script>
 </html>
