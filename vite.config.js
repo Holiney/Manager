@@ -10,8 +10,8 @@ export default defineConfig({
         name: 'Майстерня',
         short_name: 'Майстерня',
         description: 'Облік робіт, годин, матеріалів і виплат',
-        theme_color: '#E8EDEB',
-        background_color: '#E8EDEB',
+        theme_color: '#0E191D',
+        background_color: '#0E191D',
         display: 'standalone',
         icons: [
           { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
