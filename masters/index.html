@@ -1,0 +1,1329 @@
+<title>Masters</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one phone-width column. A dark "ledger slab" carries the money summary,
+   hairline-ruled lists carry the records, a fixed dock carries quick entry.
+   Each worker gets one of six colours by position in the team list. */
+:root {
+  --bg: #E8EDEB;
+  --surface: #F6F9F8;
+  --surface-2: #DDE4E2;
+  --ink: #12252B;
+  --ink-2: #485D63;
+  --line: #C8D3D0;
+  --c0: #2B50B5; --c0bg: #DCE4F7; --c0on: #FFFFFF;
+  --c1: #9F5A00; --c1bg: #F5E2C4; --c1on: #FFFFFF;
+  --c2: #8A3FA0; --c2bg: #EBD9F0; --c2on: #FFFFFF;
+  --c3: #0E7480; --c3bg: #D0E9EC; --c3on: #FFFFFF;
+  --c4: #B03259; --c4bg: #F6D8E1; --c4on: #FFFFFF;
+  --c5: #66741A; --c5bg: #E4EAC6; --c5on: #FFFFFF;
+  --ok: #17703F;
+  --ok-bg: #D3EADB;
+  --bad: #B73822;
+  --bad-bg: #F5D9D1;
+  --btn: #12252B;
+  --btn-fg: #F6F9F8;
+  --focus: #2B50B5;
+  --hero-bg: #0F2127;
+  --hero-fg: #EAF1EF;
+  --hero-mute: #9DB3B8;
+  --hero-line: rgba(234, 241, 239, .16);
+  --hero-ok: #6FD39B;
+  --hero-bad: #F59C8A;
+  --h0: #93ADF5; --h1: #EDAA55; --h2: #D79CE8; --h3: #5CCBD2; --h4: #F29AB8; --h5: #BFD05A;
+  --f-ui: "Onest", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E191D; --surface: #162529; --surface-2: #1F3238; --ink: #E6EEEC; --ink-2: #98ADB2; --line: #2A4047;
+    --c0: #8FA9F2; --c0bg: #1F2E55; --c0on: #0E191D;
+    --c1: #E8A64C; --c1bg: #402F10; --c1on: #0E191D;
+    --c2: #D79CE8; --c2bg: #3F2147; --c2on: #0E191D;
+    --c3: #5CCBD2; --c3bg: #123A3E; --c3on: #0E191D;
+    --c4: #F29AB8; --c4bg: #4A1F2F; --c4on: #0E191D;
+    --c5: #BFD05A; --c5bg: #384011; --c5on: #0E191D;
+    --ok: #5CC58A; --ok-bg: #12331F; --bad: #F0907E; --bad-bg: #44201A;
+    --btn: #E6EEEC; --btn-fg: #0E191D; --focus: #8FA9F2; --hero-bg: #1C3138;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E191D; --surface: #162529; --surface-2: #1F3238; --ink: #E6EEEC; --ink-2: #98ADB2; --line: #2A4047;
+  --c0: #8FA9F2; --c0bg: #1F2E55; --c0on: #0E191D;
+  --c1: #E8A64C; --c1bg: #402F10; --c1on: #0E191D;
+  --c2: #D79CE8; --c2bg: #3F2147; --c2on: #0E191D;
+  --c3: #5CCBD2; --c3bg: #123A3E; --c3on: #0E191D;
+  --c4: #F29AB8; --c4bg: #4A1F2F; --c4on: #0E191D;
+  --c5: #BFD05A; --c5bg: #384011; --c5on: #0E191D;
+  --ok: #5CC58A; --ok-bg: #12331F; --bad: #F0907E; --bad-bg: #44201A;
+  --btn: #E6EEEC; --btn-fg: #0E191D; --focus: #8FA9F2; --hero-bg: #1C3138;
+  color-scheme: dark;
+}
+.w0 { --wc: var(--c0); --wbg: var(--c0bg); --won: var(--c0on); --wh: var(--h0); }
+.w1 { --wc: var(--c1); --wbg: var(--c1bg); --won: var(--c1on); --wh: var(--h1); }
+.w2 { --wc: var(--c2); --wbg: var(--c2bg); --won: var(--c2on); --wh: var(--h2); }
+.w3 { --wc: var(--c3); --wbg: var(--c3bg); --won: var(--c3on); --wh: var(--h3); }
+.w4 { --wc: var(--c4); --wbg: var(--c4bg); --won: var(--c4on); --wh: var(--h4); }
+.w5 { --wc: var(--c5); --wbg: var(--c5bg); --won: var(--c5on); --wh: var(--h5); }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.45 var(--f-ui);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+body.lock { overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; }
+h1, h2, h3, p { margin: 0; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.i { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+.i.sm { width: 14px; height: 14px; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.grow { flex: 1; min-width: 0; }
+.muted { color: var(--ink-2); }
+.sm { font-size: 13px; }
+
+#app { max-width: 560px; margin: 0 auto; padding-block: 0 40px; display: grid; gap: 16px; }
+#app.has-fab { padding-bottom: 104px; }
+#app.has-dock { padding-bottom: 120px; }
+
+/* top bar */
+.top { display: flex; align-items: center; gap: 8px; padding-block: 18px 2px; min-width: 0; }
+.top h1 { font-size: 26px; line-height: 1.1; letter-spacing: -.02em; font-weight: 700; text-wrap: balance; overflow-wrap: anywhere; }
+.top .sub { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+.top .back { margin-left: -10px; }
+.ib { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 10px; border: 0; background: transparent; color: var(--ink); flex: none; }
+.ib:hover { background: var(--surface-2); }
+.ib.bad { color: var(--bad); }
+.syncchip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--ink-2); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px; white-space: nowrap; }
+.syncchip i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-2); }
+.syncchip.saved i { background: var(--ok); }
+.syncchip.error { color: var(--bad); border-color: var(--bad); }
+.syncchip.error i { background: var(--bad); }
+
+/* ledger slab */
+.slab { background: var(--hero-bg); color: var(--hero-fg); border-radius: 14px; padding: 18px; display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--hero-mute); font-weight: 600; }
+.big { font-family: var(--f-num); font-size: 36px; font-weight: 600; letter-spacing: -.03em; line-height: 1.05; }
+.slab .mute { color: var(--hero-mute); }
+.slab hr { border: 0; border-top: 1px solid var(--hero-line); margin: 0; }
+.wgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 12px; }
+.wgrid > div { min-width: 0; }
+.pname { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; min-width: 0; }
+.pname span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dot { width: 9px; height: 9px; border-radius: 50%; flex: none; background: var(--wh, var(--hero-mute)); }
+.pbig { font-family: var(--f-num); font-size: 22px; font-weight: 600; letter-spacing: -.02em; margin-top: 4px; }
+.plabel { font-size: 12px; color: var(--hero-mute); }
+.calc { display: grid; gap: 6px; font-size: 14px; margin: 0; }
+.calc div { display: flex; justify-content: space-between; gap: 12px; }
+.calc dt, .calc dd { margin: 0; }
+.calc .tot { border-top: 1px solid var(--hero-line); padding-top: 8px; font-weight: 600; }
+.pblock { background: rgba(255, 255, 255, .06); border-radius: 10px; padding: 12px; display: grid; gap: 2px; align-content: start; border-top: 3px solid var(--wh, var(--hero-mute)); }
+.pline { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--hero-mute); margin-top: 6px; }
+.pline + .pline { margin-top: 2px; }
+.pline .num { color: var(--hero-fg); white-space: nowrap; }
+.pline.left { border-top: 1px solid var(--hero-line); padding-top: 6px; margin-top: 6px; }
+.pline.left .num { font-weight: 600; }
+.pline.left .num.owe { color: var(--h1); }
+.pline.left .num.done { color: var(--hero-ok); }
+.hbar { height: 8px; border-radius: 99px; background: var(--hero-line); overflow: hidden; display: flex; }
+.hbar i { display: block; height: 100%; background: var(--wh); }
+.hint { font-size: 13px; color: var(--hero-mute); }
+.neg { color: var(--hero-bad); }
+
+/* generic cards and lists */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.card-head { display: flex; align-items: center; gap: 10px; padding: 12px 8px 12px 16px; border-bottom: 1px solid var(--line); }
+.card-head h2 { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.card-head .total { margin-left: auto; font-size: 14px; font-weight: 600; }
+.card-pad { padding: 14px 16px; display: grid; gap: 10px; }
+.subline { padding: 8px 16px; font-size: 13px; border-bottom: 1px solid var(--line); color: var(--ink-2); display: flex; justify-content: space-between; gap: 12px; }
+.subline.bad { color: var(--bad); background: var(--bad-bg); }
+.rows > * + * { border-top: 1px solid var(--line); }
+.row, .entry { display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 16px; background: none; border: 0; text-align: left; min-width: 0; }
+.row:hover, .entry:hover { background: color-mix(in srgb, var(--surface-2) 55%, transparent); }
+.row .name { font-size: 16px; font-weight: 600; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .meta { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); margin-top: 2px; min-width: 0; }
+.row .meta span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.end { display: grid; justify-items: end; gap: 2px; text-align: right; flex: none; }
+.debt { color: var(--bad); font-weight: 600; font-size: 15px; }
+.ok-text { color: var(--ok); font-weight: 600; font-size: 13px; }
+.empty { padding: 22px 16px; color: var(--ink-2); font-size: 14px; text-align: center; }
+.empty b { display: block; color: var(--ink); font-size: 16px; margin-bottom: 4px; }
+.empty .btn { margin-top: 12px; }
+
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; flex: none; background: var(--wbg); color: var(--wc); }
+.av.common { background: var(--surface-2); color: var(--ink-2); }
+.entry-main { flex: 1; min-width: 0; display: grid; }
+.entry-main b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entry-main small { color: var(--ink-2); font-size: 12.5px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.entry .amt-out { font-family: var(--f-num); font-weight: 600; flex: none; }
+.entry .amt-out.in { color: var(--ok); }
+.tag { font-size: 11.5px; font-weight: 600; padding: 1px 8px; border-radius: 999px; background: var(--wbg); color: var(--wc); }
+.tag.common { background: var(--surface-2); color: var(--ink-2); }
+.tag.unpaid { background: var(--bad-bg); color: var(--bad); }
+
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; color: var(--ink-2); }
+.pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink-2); }
+.pill.in_progress { color: var(--ink); border-color: var(--ink); }
+.pill.in_progress i { background: var(--ok); }
+.pill.done { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pill.done i { background: var(--bg); }
+.pill.mode { border-style: dashed; }
+
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 13px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.searchbox { position: relative; }
+.searchbox .i { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink-2); }
+.searchbox input[type=search] { padding-left: 40px; }
+
+.statusbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 10px; }
+.statusbar button { border: 0; background: transparent; padding: 9px 4px; border-radius: 7px; font-size: 13.5px; font-weight: 600; color: var(--ink-2); }
+.statusbar button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .18); }
+
+.pbar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.pbar i { display: block; height: 100%; background: var(--ok); border-radius: 99px; }
+.payline { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.linklike { border: 0; background: none; padding: 0; color: var(--ink-2); text-decoration: underline; text-underline-offset: 3px; font-size: 14px; text-align: left; }
+.contact { display: grid; gap: 10px; }
+.contact a { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; min-width: 0; }
+.contact a span.t { text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; overflow-wrap: anywhere; }
+.contact .note { border-top: 1px solid var(--line); padding-top: 10px; color: var(--ink-2); font-size: 14px; white-space: pre-wrap; }
+.banner { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px dashed var(--ink-2); border-radius: 12px; font-size: 13.5px; color: var(--ink-2); }
+
+/* rates */
+.raterow { display: flex; align-items: center; gap: 10px; padding: 10px 8px 10px 16px; }
+.raterow .nm { flex: 1; min-width: 0; display: grid; font-weight: 600; }
+.raterow .nm small { color: var(--ink-2); font-weight: 400; font-size: 12.5px; }
+.raterow input.ratein { width: 76px; flex: none; font-family: var(--f-num); font-weight: 600; text-align: right; padding: 9px 10px; }
+.raterow .ratev { font-weight: 600; white-space: nowrap; }
+.raterow .ib { width: 38px; height: 38px; }
+.raterow .ib[disabled] { opacity: .25; cursor: not-allowed; }
+.raterow.edit { flex-wrap: wrap; row-gap: 8px; }
+.raterow.edit .nm { flex: 1 1 120px; }
+
+/* notes */
+.note-row { display: flex; align-items: flex-start; gap: 8px; padding: 10px 8px 10px 16px; }
+.note-row .txt { flex: 1; min-width: 0; background: none; border: 0; text-align: left; padding: 0; overflow-wrap: anywhere; }
+.note-row .txt time { display: block; font-family: var(--f-num); font-size: 11.5px; color: var(--ink-2); }
+.note-row.struck .txt span { text-decoration: line-through; opacity: .5; }
+.note-row .ib { width: 32px; height: 32px; color: var(--ink-2); }
+.noteform { display: flex; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); }
+
+/* forms */
+.field { display: grid; gap: 6px; min-width: 0; }
+.lbl, .field > label { font-size: 12px; font-weight: 600; color: var(--ink-2); letter-spacing: .03em; }
+input[type=text], input[type=tel], input[type=number], input[type=date], input[type=search], textarea {
+  width: 100%; font: inherit; font-size: 16px; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; min-width: 0;
+}
+textarea { resize: vertical; }
+input.amt { font-family: var(--f-num); font-size: 24px; font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 11px 16px; border-radius: 10px; font-weight: 600; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn:hover { background: var(--surface-2); }
+.btn-primary { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); }
+.btn-primary:hover { background: var(--btn); opacity: .9; }
+.btn-danger { color: var(--bad); }
+.btn-sm { padding: 7px 12px; font-size: 13.5px; }
+.btnrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.seg-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 4px; background: var(--surface-2); padding: 4px; border-radius: 10px; }
+.seg { position: relative; display: block; }
+.seg input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.seg span { display: block; text-align: center; padding: 10px 6px; border-radius: 7px; font-weight: 600; font-size: 14px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seg input:checked + span { background: var(--surface); color: var(--ink); box-shadow: 0 1px 2px rgb(0 0 0 / .18); }
+.seg.wk input:checked + span { background: var(--wc); color: var(--won); }
+.seg.bad input:checked + span { background: var(--bad); color: var(--surface); }
+.seg input:focus-visible + span { outline: 2px solid var(--focus); }
+.seg input:disabled + span { opacity: .4; }
+.seg input:disabled { cursor: not-allowed; }
+.formnote { font-size: 12.5px; color: var(--ink-2); }
+.formnote.bad { color: var(--bad); }
+code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2); padding: 2px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+
+/* payout rows and team rows */
+.hrows { display: grid; gap: 8px; }
+.hrow { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; border-left: 4px solid var(--wc); }
+.hrow label { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hrow input { width: 84px; flex: none; text-align: right; }
+.porow { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; border-left: 4px solid var(--wc); }
+.porow .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.porow .who small { display: block; color: var(--ink-2); font-size: 12.5px; }
+.pototal { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; }
+.trow { display: grid; grid-template-columns: 1fr 74px 74px 42px; gap: 8px; align-items: end; padding: 12px 8px 12px 16px; }
+.trow2 { display: flex; align-items: center; gap: 10px; padding: 10px 6px 10px 16px; }
+.trow2 b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trow2 small { color: var(--ink-2); font-size: 12.5px; }
+.trow2 .ib[disabled] { opacity: .3; cursor: not-allowed; }
+.addrow { display: flex; gap: 8px; }
+
+/* sheet */
+#sheet:empty { display: none; }
+.scrim { position: fixed; inset: 0; background: rgb(6 16 20 / .55); z-index: 40; }
+.sheet {
+  position: fixed; inset: auto 0 0 0; z-index: 41; margin: 0 auto; max-width: 560px; max-height: calc(100% - 16px); overflow: auto;
+  background: var(--surface); border-radius: 18px 18px 0 0; display: grid; gap: 14px;
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.sheet-head h2 { font-size: 18px; font-weight: 700; }
+.sheet-head .ib { margin-right: -10px; }
+.sheet-body { display: grid; gap: 14px; }
+.sheet-foot { display: flex; gap: 8px; align-items: center; }
+@media (min-width: 640px) {
+  .sheet { inset: 50% 0 auto 0; transform: translateY(-50%); border-radius: 18px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sheet { animation: rise .18s ease-out; }
+  @keyframes rise { from { opacity: 0; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
+}
+
+/* fixed chrome */
+.fabwrap { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; pointer-events: none;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.fabin { max-width: 560px; margin: 0 auto; display: flex; justify-content: flex-end; }
+.fab { pointer-events: auto; display: inline-flex; align-items: center; gap: 8px; background: var(--btn); color: var(--btn-fg); border: 0; border-radius: 999px; padding: 15px 22px 15px 18px; font-weight: 700; font-size: 16px; box-shadow: 0 6px 18px rgb(0 0 0 / .28); }
+.dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line);
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(10px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); }
+.dockin { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.dockbtn { display: grid; justify-items: center; gap: 3px; padding: 9px 2px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); font-size: 12px; font-weight: 600; min-width: 0; }
+.dockbtn.main { background: var(--btn); color: var(--btn-fg); border-color: var(--btn); }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(96px + env(safe-area-inset-bottom, 0px)); z-index: 60;
+  max-width: calc(100% - 32px); background: var(--ink); color: var(--bg); padding: 11px 16px; border-radius: 10px; display: flex; gap: 16px; align-items: center; font-size: 14px; box-shadow: 0 6px 18px rgb(0 0 0 / .3); }
+.toast button { background: none; border: 0; color: inherit; font-weight: 700; text-decoration: underline; padding: 0; }
+.boot { padding: 60px 0; text-align: center; color: var(--ink-2); }
+@media (max-width: 380px) { .big { font-size: 30px; } .pbig { font-size: 19px; } .grid2 { grid-template-columns: 1fr; } .trow { grid-template-columns: 1fr 66px 66px 42px; gap: 6px; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A15 15 0 0 1 4 5a1 1 0 0 1 1-1z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2.2"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8zM9 8V7a3 3 0 0 1 6 0v1"/></symbol>
+  <symbol id="i-euro" viewBox="0 0 24 24"><path d="M17.5 7.2A6 6 0 0 0 9 9.5v5a6 6 0 0 0 8.5 2.3M5.5 10.5h8M5.5 13.5h8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="9" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 6.3a3 3 0 0 1 0 5.4M17.2 14a5.5 5.5 0 0 1 3.3 5"/></symbol>
+  <symbol id="i-note" viewBox="0 0 24 24"><path d="M5 4h14v12l-4 4H5V4zM15 20v-4h4M8.5 9h7M8.5 12.5h4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+</svg>
+
+<div id="app"></div>
+<div id="chrome"></div>
+<div id="sheet"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- helpers ---------- */
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const KEY = 'masters.v2';
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const pad = (n) => String(n).padStart(2, '0');
+  const ymd = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  const todayStr = () => ymd(new Date());
+  const num = (v) => { const n = parseFloat(String(v == null ? '' : v).replace(',', '.')); return isFinite(n) ? n : 0; };
+  const r2 = (n) => Math.round((+n || 0) * 100) / 100;
+  const eur = (n) => { let v = r2(n); if (Object.is(v, -0)) v = 0; return new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(v).replace('EUR', '€'); };
+  const hrs = (n) => new Intl.NumberFormat('uk-UA', { maximumFractionDigits: 2 }).format(r2(n));
+  const plural = (n, f) => { const m = n % 100, k = n % 10; if (m > 10 && m < 20) return f[2]; if (k === 1) return f[0]; if (k >= 2 && k <= 4) return f[1]; return f[2]; };
+  const JOBS = ['робота', 'роботи', 'робіт'];
+  function fdate(s) {
+    const m = /^(\d{4})-(\d\d)-(\d\d)/.exec(s || ''); if (!m) return '';
+    const d = new Date(+m[1], +m[2] - 1, +m[3]); const o = { day: 'numeric', month: 'short' };
+    if (d.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+    return d.toLocaleDateString('uk-UA', o);
+  }
+  function ftime(ms) { return new Date(ms).toLocaleString('uk-UA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+  function fphone(raw) {
+    if (!raw) return '';
+    let d = String(raw).replace(/\D/g, '');
+    if (d.startsWith('0032')) d = d.slice(2);
+    else if (d.startsWith('0') && !d.startsWith('00')) d = '32' + d.slice(1);
+    if (d.startsWith('32')) {
+      const n = d.slice(2);
+      if (n.length === 9 && n[0] === '4') return '+32 ' + n.slice(0, 3) + ' ' + n.slice(3, 5) + ' ' + n.slice(5, 7) + ' ' + n.slice(7);
+      if (n.length === 8) return '+32 ' + n[0] + ' ' + n.slice(1, 4) + ' ' + n.slice(4, 6) + ' ' + n.slice(6);
+    }
+    return String(raw).trim();
+  }
+  const icon = (n, c) => '<svg class="i ' + (c || '') + '" aria-hidden="true"><use href="#i-' + n + '"/></svg>';
+  const STATUS = { pending: 'Очікує', in_progress: 'В роботі', done: 'Завершено' };
+  const pill = (s) => '<span class="pill ' + esc(s) + '"><i></i>' + esc(STATUS[s] || STATUS.pending) + '</span>';
+
+  /* ---------- state ---------- */
+  const DEFAULT_RATE = 15, SUGGEST = ['Міша', 'Марян'];
+  const defaultWorkers = () => [{ id: 'me', name: 'Віталік', rate: DEFAULT_RATE }];
+  let S = { clients: [], jobs: [], workers: defaultWorkers() };
+  let route = { name: 'home' };
+  let search = '', filter = 'all', booting = true, focusAfter = null, lastWho = 'me', lastPayer = 'me', rateEdit = null, teamEdit = null;
+  const wname = (id) => { const w = S.workers.find((x) => x.id === id); return w ? w.name : 'Видалений'; };
+  const wcls = (id) => { const i = S.workers.findIndex((w) => w.id === id); return 'w' + ((i < 0 ? 0 : i) % 6); };
+  const ini = (id) => wname(id).trim().charAt(0).toUpperCase() || '?';
+  const jobById = (id) => S.jobs.find((j) => j.id === id);
+  const clientById = (id) => S.clients.find((c) => c.id === id);
+  const sum = (a, f) => a.reduce((s, x) => s + (+f(x) || 0), 0);
+
+  /* Bring any stored shape (old two-partner data included) up to the current one. */
+  function deriveTeam(j, own) {
+    const t = Array.isArray(j.team) ? j.team.filter((x) => typeof x === 'string') : [];
+    const add = (id) => { if (id && id !== 'common' && t.indexOf(id) < 0) t.push(id); };
+    if (!t.length) add(own);
+    (j.hours || []).forEach((h) => add(h.who)); (j.expenses || []).forEach((e) => add(e.paidBy)); (j.payouts || []).forEach((p) => add(p.wid));
+    j.team = t;
+  }
+  function migrate(s) {
+    if (!Array.isArray(s.workers) || !s.workers.length) {
+      const n = s.names || {};
+      const usedBy = (id) => (s.jobs || []).some((j) => (j.hours || []).some((h) => h.who === id) || (j.expenses || []).some((e) => e.paidBy === id) || (j.payouts || []).some((p) => p.wid === id));
+      s.workers = [{ id: 'me', name: n.me || 'Віталік', rate: DEFAULT_RATE }];
+      if (usedBy('partner')) s.workers.push({ id: 'partner', name: n.partner || 'Міша', rate: DEFAULT_RATE });
+    }
+    delete s.names;
+    s.clients = s.clients || []; s.jobs = s.jobs || [];
+    s.jobs.forEach((j) => {
+      j.mode = j.mode === 'hourly' ? 'hourly' : 'total';
+      j.rates = j.rates && typeof j.rates === 'object' ? j.rates : {};
+      j.pays = j.pays && typeof j.pays === 'object' ? j.pays : {};
+      j.hours = j.hours || []; j.expenses = j.expenses || []; j.payments = j.payments || []; j.payouts = j.payouts || []; j.notes = j.notes || [];
+      j.expenses.forEach((e) => { if (e.paid == null) e.paid = true; });
+      deriveTeam(j, (s.workers.find((w) => w.id === 'me') || s.workers[0]).id);
+    });
+    return s;
+  }
+
+  /* ---------- money model ----------
+     total job:  client price is fixed. Materials come off it, the rest is split by hours.
+     hourly job: every worker has own rate. Client pays hours x rate for each worker, plus materials at cost.
+     Worker due = earned + materials they paid for. Balance = due - payouts already given. */
+  const rateOf = (j, id) => {
+    const r = j.rates && j.rates[id];
+    if (r != null && r !== '' && isFinite(+r)) return +r;
+    const w = S.workers.find((x) => x.id === id); return w ? (+w.rate || DEFAULT_RATE) : DEFAULT_RATE;
+  };
+  const ownerId = () => (S.workers.find((x) => x.id === 'me') || S.workers[0] || { id: 'me' }).id;
+  /* what the worker gets per hour; owner always gets the billed rate, others may get less (difference is the owner's) */
+  const payOf = (j, id) => {
+    const bill = rateOf(j, id);
+    if (id === ownerId()) return bill;
+    const o = j.pays && j.pays[id];
+    if (o != null && o !== '' && isFinite(+o) && +o >= 0) return +o;
+    const w = S.workers.find((x) => x.id === id);
+    return w && +w.pay > 0 ? +w.pay : bill;
+  };
+  function workerIds(j) {
+    const ids = [];
+    const add = (id) => { if (id && id !== 'common' && ids.indexOf(id) < 0) ids.push(id); };
+    (j.team || []).forEach(add);
+    if (!ids.length) add(ownerId());
+    (j.hours || []).forEach((h) => add(h.who));
+    (j.expenses || []).forEach((e) => add(e.paidBy));
+    (j.payouts || []).forEach((p) => add(p.wid));
+    return ids;
+  }
+  function calc(j) {
+    const hourly = j.mode === 'hourly';
+    const ex = j.expenses || [], hr = j.hours || [], pay = j.payments || [], po = j.payouts || [];
+    const expenses = sum(ex, (e) => e.amount);
+    const exUnpaid = sum(ex.filter((e) => e.paid === false), (e) => e.amount);
+    const exCommon = sum(ex.filter((e) => e.paid !== false && e.paidBy === 'common'), (e) => e.amount);
+    const ids = workerIds(j), W = {};
+    ids.forEach((id) => {
+      W[id] = {
+        id, h: sum(hr.filter((x) => x.who === id), (x) => x.h), rate: hourly ? rateOf(j, id) : 0,
+        comp: sum(ex.filter((e) => e.paid !== false && e.paidBy === id), (e) => e.amount),
+        paidOut: sum(po.filter((p) => p.wid === id), (p) => p.amount), paidH: sum(po.filter((p) => p.wid === id), (p) => p.hours)
+      };
+    });
+    if (hourly) {
+      const oid = ownerId();
+      let m = 0; ids.forEach((id) => { W[id].pay = payOf(j, id); m += W[id].h * (W[id].rate - W[id].pay); });
+      if (m !== 0 && !W[oid]) { ids.unshift(oid); W[oid] = { id: oid, h: 0, rate: rateOf(j, oid), pay: rateOf(j, oid), comp: 0, paidOut: 0, paidH: 0 }; }
+      ids.forEach((id) => { W[id].margin = 0; });
+      if (W[oid]) W[oid].margin = m;
+    }
+    const hours = sum(ids, (id) => W[id].h);
+    const margin = hourly && W[ownerId()] ? W[ownerId()].margin : 0;
+    const labor = hourly ? sum(ids, (id) => W[id].h * W[id].rate) : 0;
+    const price = hourly ? labor + expenses : (+j.price || 0);
+    const net = hourly ? labor : price - expenses;
+    const rate = hourly ? 0 : (hours > 0 ? net / hours : 0);
+    ids.forEach((id) => {
+      const w = W[id];
+      w.payRate = hourly ? w.pay : rate; w.earned = w.h * w.payRate; w.margin = w.margin || 0; w.due = w.earned + w.margin + w.comp;
+      w.balance = w.due - w.paidOut; w.unpaidH = Math.max(0, w.h - w.paidH);
+    });
+    const paid = sum(pay, (p) => p.amount), payoutsTotal = sum(po, (p) => p.amount);
+    return {
+      hourly, margin, price, expenses, exUnpaid, exCommon, hours, net, rate, labor, W, ids, paid, payoutsTotal,
+      remaining: Math.max(0, price - paid), over: Math.max(0, paid - price), cash: paid - exCommon - payoutsTotal
+    };
+  }
+
+  /* ---------- persistence: localStorage always, private db when available ---------- */
+  let refs = null, synced = new Map(), syncedCore = '', flushing = false, dirty = false, flushTimer = null, localDirty = false;
+  let syncState = 'local';
+  const tryLS = (fn) => { try { return fn(); } catch (e) { return null; } };
+  function saveLocal(flag) { tryLS(() => localStorage.setItem(KEY, JSON.stringify({ v: 3, S: S, dirty: !!flag }))); }
+  function loadLocal() {
+    const raw = tryLS(() => localStorage.getItem(KEY)); if (!raw) return;
+    try {
+      const o = JSON.parse(raw);
+      if (o && o.S) { S = migrate(Object.assign({ clients: [], jobs: [] }, o.S)); localDirty = !!o.dirty; }
+    } catch (e) { /* ignore */ }
+  }
+  const hasData = () => S.clients.length > 0 || S.jobs.length > 0;
+  function setSync(s) { syncState = s; const el = $('#syncchip'); if (el) el.outerHTML = syncChip(); }
+  function syncChip() {
+    const map = { local: ['', 'Лише тут'], saving: ['', 'Зберігаю…'], saved: ['saved', 'Збережено'], error: ['error', 'Не збережено. Повторити'] };
+    const m = map[syncState] || map.local;
+    return '<button type="button" id="syncchip" class="syncchip ' + m[0] + '" data-act="retry-sync"><i></i>' + m[1] + '</button>';
+  }
+  function save() {
+    saveLocal(!!refs);
+    if (!refs) return;
+    dirty = true; setSync('saving');
+    clearTimeout(flushTimer); flushTimer = setTimeout(flush, 500);
+  }
+  async function flush() {
+    if (!refs || flushing) return;
+    flushing = true;
+    try {
+      while (dirty) {
+        dirty = false;
+        const core = JSON.stringify({ clients: S.clients, workers: S.workers });
+        if (core !== syncedCore) { await refs.core.set(JSON.parse(core)); syncedCore = core; }
+        const ids = new Set();
+        for (const j of S.jobs.slice()) {
+          ids.add(j.id);
+          const js = JSON.stringify(j);
+          if (synced.get(j.id) !== js) { await refs.jobs.doc(j.id).set(JSON.parse(js)); synced.set(j.id, js); }
+        }
+        for (const id of Array.from(synced.keys())) {
+          if (!ids.has(id)) { await refs.jobs.doc(id).delete(); synced.delete(id); }
+        }
+      }
+      saveLocal(false); setSync('saved');
+    } catch (e) { dirty = true; setSync('error'); }
+    finally { flushing = false; }
+  }
+  function stable(v) {
+    if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+    if (v && typeof v === 'object') return '{' + Object.keys(v).sort().map((k) => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+    return JSON.stringify(v);
+  }
+  async function pull() {
+    if (!refs || flushing || dirty) return;
+    try {
+      const res = await Promise.all([refs.core.get(), refs.jobs.get()]);
+      const c = res[0], js = res[1];
+      if (flushing || dirty) return;
+      if (!c.exists && js.empty) {
+        if (hasData()) { dirty = true; flush(); } else setSync('saved');
+        return;
+      }
+      const cd = c.data() || {};
+      const remote = migrate({
+        clients: cd.clients || [], workers: cd.workers, names: cd.names,
+        jobs: js.docs.map((d) => d.data()).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))
+      });
+      synced = new Map(remote.jobs.map((j) => [j.id, JSON.stringify(j)]));
+      syncedCore = JSON.stringify({ clients: remote.clients, workers: remote.workers });
+      if (stable(remote) !== stable({ clients: S.clients, workers: S.workers, jobs: S.jobs })) { S = remote; saveLocal(false); if (!sheetState) render(); }
+      setSync('saved');
+    } catch (e) { setSync(hasData() ? 'error' : 'local'); }
+  }
+  async function initDb() {
+    try {
+      let tries = 0;
+      while (!(window.claude && window.claude.use) && tries < 6) { await new Promise((r) => setTimeout(r, 250)); tries++; }
+      if (!(window.claude && window.claude.use)) return;
+      const both = await Promise.all([window.claude.use('db'), window.claude.use('user')]);
+      const db = both[0], user = both[1];
+      if (!db || !user) return;
+      const id = await user.id(); if (!id) return;
+      const root = db.doc('data/users/' + id + '/app');
+      refs = { core: root.collection('meta').doc('core'), jobs: root.collection('jobs') };
+      setSync('saving');
+      if (localDirty) { dirty = true; flush(); } else { await pull(); }
+    } catch (e) { refs = null; }
+  }
+
+  /* ---------- mutations ---------- */
+  let toastTimer = null;
+  function toast(msg, before) {
+    const el = $('#toast');
+    el.innerHTML = '<span>' + esc(msg) + '</span>' + (before ? '<button type="button" data-act="undo">Скасувати</button>' : '');
+    el.hidden = false; el._before = before || null;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; el._before = null; }, before ? 7000 : 3200);
+  }
+  function change(fn, msg, o) {
+    o = o || {};
+    const before = JSON.stringify(S);
+    fn(); save();
+    if (o.route) go(o.route); else render();
+    if (msg) toast(msg, o.undo === false ? null : before);
+  }
+  const touch = (j) => { j.updatedAt = Date.now(); };
+
+  /* ---------- routing ---------- */
+  const routeKey = (r) => r.name === 'client' ? 'c-' + r.id : r.name === 'job' ? 'j-' + r.id : '';
+  function parseHash() {
+    const h = (tryLS(() => location.hash) || '').replace(/^#/, '');
+    if (h.indexOf('c-') === 0) return { name: 'client', id: h.slice(2) };
+    if (h.indexOf('j-') === 0) return { name: 'job', id: h.slice(2) };
+    return { name: 'home' };
+  }
+  function go(r) {
+    route = r; rateEdit = null;
+    tryLS(() => { const k = routeKey(r); if ((location.hash || '').replace(/^#/, '') !== k) location.hash = k; });
+    render(); window.scrollTo(0, 0);
+  }
+  window.addEventListener('hashchange', () => {
+    const r = parseHash(); if (routeKey(r) !== routeKey(route)) { route = r; render(); window.scrollTo(0, 0); }
+  });
+
+  /* ---------- views ---------- */
+  function topbar(o) {
+    return '<header class="top">' + (o.back ? '<button class="ib back" data-act="' + o.back + '"' + (o.backId ? ' data-id="' + esc(o.backId) + '"' : '') + ' aria-label="Назад">' + icon('back') + '</button>' : '') +
+      '<div class="grow"><h1>' + esc(o.title) + '</h1>' + (o.sub ? '<p class="sub">' + o.sub + '</p>' : '') + '</div>' + (o.actions || '') + '</header>';
+  }
+
+  function totals() {
+    const t = { outstanding: 0, owing: 0, net: 0, unpaidMat: 0, W: {} };
+    S.workers.forEach((w) => { t.W[w.id] = { due: 0, paidOut: 0 }; });
+    S.jobs.forEach((j) => {
+      const c = calc(j);
+      t.outstanding += c.remaining; if (c.remaining > 0) t.owing++;
+      t.net += c.net; t.unpaidMat += c.exUnpaid;
+      c.ids.forEach((id) => { if (!t.W[id]) t.W[id] = { due: 0, paidOut: 0 }; t.W[id].due += c.W[id].due; t.W[id].paidOut += c.W[id].paidOut; });
+    });
+    return t;
+  }
+
+  function homeHtml() {
+    const date = new Date().toLocaleDateString('uk-UA', { weekday: 'long', day: 'numeric', month: 'long' });
+    let h = topbar({ title: 'Masters', sub: esc(date), actions: syncChip() + '<button class="ib" data-act="settings" aria-label="Налаштування">' + icon('sliders') + '</button>' });
+    if (booting && !hasData()) return h + '<p class="boot">Завантажую дані…</p>';
+    if (!hasData()) {
+      return h + '<section class="card"><div class="empty"><b>Клієнтів ще немає</b>Додайте клієнта, потім роботу, години, матеріали й оплати. Частки працівників порахуються самі.' +
+        '<div class="btnrow" style="justify-content:center"><button class="btn btn-primary" data-act="add-client">' + icon('plus') + 'Додати клієнта</button><button class="btn" data-act="load-sample">Подивитись на прикладі</button></div></div></section>';
+    }
+    const t = totals();
+    const cells = Object.keys(t.W).filter((id) => t.W[id].due || t.W[id].paidOut || S.workers.some((w) => w.id === id)).map((id) => {
+      const w = t.W[id], left = w.due - w.paidOut;
+      return '<div class="' + wcls(id) + '"><div class="pname"><i class="dot"></i><span>' + esc(wname(id)) + '</span></div><div class="pbig">' + eur(left) + '</div>' +
+        '<div class="plabel">з ' + eur(w.due) + ' зароблено</div></div>';
+    }).join('');
+    h += '<section class="slab" aria-label="Підсумок">' +
+      '<div><div class="eyebrow">Очікується оплат</div><div class="big num">' + eur(t.outstanding) + '</div>' +
+      '<p class="sm mute">' + (t.owing ? 'у ' + t.owing + ' ' + plural(t.owing, ['роботі', 'роботах', 'роботах']) : 'усе сплачено') + '</p></div><hr>' +
+      '<div><div class="eyebrow" style="margin-bottom:10px">Ще треба виплатити</div><div class="wgrid">' + cells + '</div></div>' +
+      '<p class="sm mute">Чистий прибуток по роботах: <span class="num ' + (t.net < 0 ? 'neg' : '') + '">' + eur(t.net) + '</span>' +
+      (t.unpaidMat > 0 ? ' · не оплачено матеріалів: <span class="num neg">' + eur(t.unpaidMat) + '</span>' : '') + '</p></section>';
+    if (S.clients.some((c) => c.sample) || S.jobs.some((j) => j.sample)) {
+      h += '<div class="banner"><span class="grow">Це приклад даних.</span><button class="btn btn-sm" data-act="clear-sample">Прибрати</button></div>';
+    }
+    const withDebt = S.clients.filter((c) => S.jobs.some((j) => j.clientId === c.id && calc(j).remaining > 0)).length;
+    const active = S.clients.filter((c) => S.jobs.some((j) => j.clientId === c.id && j.status === 'in_progress')).length;
+    const chip = (k, label, n) => '<button class="chip" data-act="filter" data-v="' + k + '" aria-pressed="' + (filter === k) + '">' + label + (n != null ? ' ' + n : '') + '</button>';
+    h += '<div class="searchbox">' + icon('search') + '<input id="search" type="search" placeholder="Пошук: ім’я, телефон, адреса" value="' + esc(search) + '" aria-label="Пошук клієнтів"></div>' +
+      '<div class="chips">' + chip('all', 'Усі', S.clients.length) + chip('debt', 'З боргом', withDebt) + chip('active', 'В роботі', active) + '</div>' +
+      '<section class="card" id="client-list"></section>';
+    return h;
+  }
+
+  function clientRow(c) {
+    const jobs = S.jobs.filter((j) => j.clientId === c.id);
+    const debt = sum(jobs, (j) => calc(j).remaining);
+    const ph = fphone(c.phone);
+    return '<button class="row" data-act="open-client" data-id="' + esc(c.id) + '"><span class="grow"><b class="name">' + esc(c.name) + '</b>' +
+      (ph ? '<span class="meta">' + icon('phone', 'sm') + '<span>' + esc(ph) + '</span></span>' : '') +
+      (c.address ? '<span class="meta">' + icon('pin', 'sm') + '<span>' + esc(c.address) + '</span></span>' : '') + '</span>' +
+      '<span class="end">' + (debt > 0 ? '<span class="num debt">' + eur(debt) + '</span>' : (jobs.length ? '<span class="ok-text">сплачено</span>' : '')) +
+      '<span class="muted sm">' + (jobs.length ? jobs.length + ' ' + plural(jobs.length, JOBS) : 'без робіт') + '</span></span></button>';
+  }
+  function renderList() {
+    const box = $('#client-list'); if (!box) return;
+    const q = search.trim().toLowerCase(), qd = q.replace(/\D/g, '');
+    let list = S.clients.filter((c) => {
+      if (!q) return true;
+      return (c.name || '').toLowerCase().includes(q) || (c.address || '').toLowerCase().includes(q) ||
+        (c.phone || '').toLowerCase().includes(q) || (qd.length >= 3 && String(c.phone || '').replace(/\D/g, '').includes(qd));
+    });
+    const debtOf = (c) => sum(S.jobs.filter((j) => j.clientId === c.id), (j) => calc(j).remaining);
+    if (filter === 'debt') list = list.filter((c) => debtOf(c) > 0);
+    if (filter === 'active') list = list.filter((c) => S.jobs.some((j) => j.clientId === c.id && j.status === 'in_progress'));
+    list.sort((a, b) => (debtOf(b) > 0) - (debtOf(a) > 0) || debtOf(b) - debtOf(a) || a.name.localeCompare(b.name, 'uk'));
+    box.innerHTML = list.length ? '<div class="rows">' + list.map(clientRow).join('') + '</div>' : '<div class="empty">Нічого не знайдено</div>';
+  }
+
+  function jobRow(j) {
+    const c = calc(j);
+    return '<button class="row" data-act="open-job" data-id="' + esc(j.id) + '"><span class="grow"><b class="name">' + esc(j.title) + '</b><span style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">' + pill(j.status) + (c.hourly ? '<span class="pill mode">погодинно</span>' : '') + '</span></span>' +
+      '<span class="end"><span class="num" style="font-weight:600;font-size:16px">' + eur(c.price) + '</span>' +
+      (c.remaining > 0 ? '<span class="num debt sm">залишок ' + eur(c.remaining) + '</span>' : (c.price > 0 ? '<span class="ok-text">сплачено</span>' : '')) + '</span></button>';
+  }
+
+  function clientHtml(c) {
+    const jobs = S.jobs.filter((j) => j.clientId === c.id).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    const debt = sum(jobs, (j) => calc(j).remaining);
+    const ph = fphone(c.phone), tel = String(c.phone || '').replace(/[^\d+]/g, '');
+    let h = topbar({
+      back: 'go-home', title: c.name,
+      sub: debt > 0 ? 'Борг <span class="num" style="color:var(--bad);font-weight:600">' + eur(debt) + '</span>' : (jobs.length ? 'Усе сплачено' : 'Ще без робіт'),
+      actions: '<button class="ib" data-act="edit-client" aria-label="Редагувати клієнта">' + icon('edit') + '</button><button class="ib bad" data-act="del-client" aria-label="Видалити клієнта">' + icon('trash') + '</button>'
+    });
+    const contact = (ph ? '<a href="tel:' + esc(tel) + '">' + icon('phone') + '<span class="t num">' + esc(ph) + '</span></a>' : '') +
+      (c.address ? '<a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(c.address) + '" target="_blank" rel="noopener">' + icon('pin') + '<span class="t">' + esc(c.address) + '</span></a>' : '') +
+      (c.note ? '<div class="note">' + esc(c.note) + '</div>' : '');
+    if (contact) h += '<section class="card card-pad contact">' + contact + '</section>';
+    h += '<section class="card"><div class="card-head"><h2>Роботи</h2><span class="total muted sm">' + jobs.length + '</span></div>' +
+      (jobs.length ? '<div class="rows">' + jobs.map(jobRow).join('') + '</div>' : '<div class="empty"><b>Робіт ще немає</b>Додайте першу, щоб вести години, матеріали, оплати й виплати.</div>') + '</section>';
+    return h;
+  }
+
+  function workerBlock(w, c) {
+    const id = w.id;
+    return '<div class="pblock ' + wcls(id) + '"><div class="pname"><i class="dot"></i><span>' + esc(wname(id)) + '</span></div>' +
+      '<div class="pbig">' + eur(w.due) + '</div><div class="plabel">належить</div>' +
+      '<div class="pline"><span>' + hrs(w.h) + ' год × ' + eur(w.payRate) + '</span><span class="num">' + eur(w.earned) + '</span></div>' +
+      (w.margin ? '<div class="pline"><span>різниця за ставками</span><span class="num">+' + eur(w.margin) + '</span></div>' : '') +
+      '<div class="pline"><span>матеріали</span><span class="num">+' + eur(w.comp) + '</span></div>' +
+      '<div class="pline"><span>виплачено</span><span class="num">' + (w.paidOut > 0 ? '−' : '') + eur(w.paidOut) + '</span></div>' +
+      '<div class="pline left"><span>лишилось</span><span class="num ' + (Math.abs(w.balance) < 0.005 && w.due > 0 ? 'done' : 'owe') + '">' + eur(w.balance) + '</span></div></div>';
+  }
+  const byDate = (a, b) => String(b.date || '').localeCompare(String(a.date || '')) || (b.at || 0) - (a.at || 0);
+  const expTag = (e) => e.paid === false ? '<span class="tag unpaid">Не оплачено</span>' : (e.paidBy === 'common' ? '<span class="tag common">З авансу</span>' : '<span class="tag ' + wcls(e.paidBy) + '">Платив ' + esc(wname(e.paidBy)) + '</span>');
+
+  function jobHtml(j) {
+    const c = calc(j), cl = clientById(j.clientId);
+    let h = topbar({
+      back: 'go-client', backId: j.clientId, title: j.title,
+      actions: '<button class="ib" data-act="edit-job" aria-label="Редагувати роботу">' + icon('edit') + '</button><button class="ib bad" data-act="del-job" aria-label="Видалити роботу">' + icon('trash') + '</button>'
+    });
+    h += '<div style="margin-top:-8px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + (cl ? '<button class="linklike" data-act="open-client" data-id="' + esc(cl.id) + '">' + esc(cl.name) + '</button>' : '') +
+      '<span class="pill mode">' + (c.hourly ? 'погодинна оплата' : 'фіксована ціна') + '</span></div>';
+    h += '<div class="statusbar" role="group" aria-label="Статус роботи">' + ['pending', 'in_progress', 'done'].map((s) => '<button data-act="status" data-v="' + s + '" aria-pressed="' + (j.status === s) + '">' + STATUS[s] + '</button>').join('') + '</div>';
+
+    const active = c.ids.filter((id) => c.W[id].h > 0 || c.W[id].comp > 0 || c.W[id].paidOut > 0 || c.W[id].margin);
+    const calcRows = c.hourly
+      ? '<div><dt>Робота за ставками</dt><dd class="num">' + eur(c.labor) + '</dd></div>' + (c.margin ? '<div><dt class="mute">з них ваша різниця</dt><dd class="num">' + eur(c.margin) + '</dd></div>' : '') + '<div><dt>Матеріали за рахунком</dt><dd class="num">+' + eur(c.expenses) + '</dd></div>'
+      : '<div><dt>Матеріали</dt><dd class="num">−' + eur(c.expenses) + '</dd></div><div class="tot"><dt>Чистий прибуток</dt><dd class="num ' + (c.net < 0 ? 'neg' : '') + '">' + eur(c.net) + '</dd></div><div><dt class="mute">Ставка за годину</dt><dd class="num">' + eur(c.rate) + ' · ' + hrs(c.hours) + ' год</dd></div>';
+    h += '<section class="slab" aria-label="Розрахунок">' +
+      '<div><div class="eyebrow">' + (c.hourly ? 'До оплати клієнтом' : 'Бюджет') + '</div><div class="big num">' + eur(c.price) + '</div></div>' +
+      '<dl class="calc">' + calcRows + '</dl>' +
+      (c.hours > 0 ? '<div class="hbar" role="img" aria-label="Розподіл годин">' + c.ids.filter((id) => c.W[id].h > 0).map((id) => '<i class="' + wcls(id) + '" style="width:' + (c.W[id].h / c.hours * 100) + '%"></i>').join('') + '</div>' : '') +
+      (active.length ? '<div class="wgrid">' + active.map((id) => workerBlock(c.W[id], c)).join('') + '</div>' : '<p class="hint">Додайте години, щоб розрахувати частки.</p>') +
+      (c.hourly && c.ids.some((id) => c.W[id].h > 0 && !c.W[id].rate) ? '<p class="hint">Для частини працівників ставка 0. Вкажіть її нижче.</p>' : '') + '</section>';
+
+    {
+      const own0 = ownerId();
+      h += '<section class="card"><div class="card-head"><h2>' + icon('users') + 'Команда роботи</h2><button class="btn btn-sm" data-act="jt-add">' + icon('plus', 'sm') + 'Додати</button></div><div class="rows">' +
+        c.ids.map((id) => S.workers.find((w) => w.id === id)).filter(Boolean).map((w) => {
+          const r = rateOf(j, w.id), std = +w.rate || DEFAULT_RATE, ed = rateEdit === w.id, own = w.id === own0;
+          const used = c.W[w.id] && (c.W[w.id].h > 0 || c.W[w.id].comp > 0 || c.W[w.id].paidOut > 0);
+          const pv = payOf(j, w.id), diff = r - pv;
+          const del = '<button class="ib bad" data-act="jt-del" data-id="' + esc(w.id) + '"' + (used || own ? ' disabled title="' + (own ? 'Це ви' : 'Є записи в цій роботі') + '"' : '') + ' aria-label="Прибрати ' + esc(w.name) + ' з роботи">' + icon('trash') + '</button>';
+          const av = '<span class="av ' + wcls(w.id) + '">' + esc(ini(w.id)) + '</span>';
+          if (!c.hourly) {
+            return '<div class="raterow">' + av + '<span class="nm">' + esc(w.name) + '<small>' + hrs(c.W[w.id] ? c.W[w.id].h : 0) + ' год</small></span>' + del + '</div>';
+          }
+          const sub = own ? (r !== std ? 'змінено, стандарт ' + eur(std) : 'стандартна ставка') : ('клієнт ' + eur(r) + ' · йому ' + eur(pv) + (diff ? ' · ваша різниця ' + eur(diff) : ''));
+          if (ed) {
+            return '<div class="raterow edit">' + av + '<span class="nm">' + esc(w.name) + '<small>' + (own ? 'ставка за годину' : 'клієнт платить · йому платите') + '</small></span>' +
+              '<input class="ratein" id="rate-' + esc(w.id) + '" data-wid="' + esc(w.id) + '" type="number" inputmode="decimal" step="any" min="0" value="' + r + '" aria-label="Клієнт платить за годину, ' + esc(w.name) + '">' +
+              (own ? '' : '<input class="ratein" id="pay-' + esc(w.id) + '" data-wid="' + esc(w.id) + '" type="number" inputmode="decimal" step="any" min="0" value="' + pv + '" aria-label="Працівнику платите за годину, ' + esc(w.name) + '">') +
+              '<button class="ib" data-act="rate-save" data-id="' + esc(w.id) + '" aria-label="Зберегти ставку">' + icon('check') + '</button><button class="ib" data-act="rate-cancel" aria-label="Скасувати">' + icon('x') + '</button></div>';
+          }
+          return '<div class="raterow">' + av + '<span class="nm">' + esc(w.name) + '<small>' + sub + '</small></span>' +
+            '<span class="num ratev">' + eur(r) + '/год</span><button class="ib" data-act="rate-edit" data-id="' + esc(w.id) + '" aria-label="Змінити ставку, ' + esc(w.name) + '">' + icon('edit') + '</button>' + del + '</div>';
+        }).join('') + '</div></section>';
+    }
+
+    const pct = c.price > 0 ? Math.min(100, c.paid / c.price * 100) : 0;
+    h += '<section class="card card-pad" aria-label="Оплата клієнтом"><div class="payline"><span><b class="num" style="font-size:18px">' + eur(c.paid) + '</b> <span class="muted sm">з ' + eur(c.price) + '</span></span>' +
+      (c.remaining > 0 ? '<span class="num debt">залишок ' + eur(c.remaining) + '</span>' : (c.price > 0 ? '<span class="ok-text">' + icon('check', 'sm') + ' сплачено повністю</span>' : '')) + '</div>' +
+      '<div class="pbar"><i style="width:' + pct + '%"></i></div>' + (c.over > 0 ? '<p class="formnote">Переплата ' + eur(c.over) + '</p>' : '') + '</section>';
+
+    const hours = (j.hours || []).slice().sort(byDate);
+    h += '<section class="card"><div class="card-head"><h2>' + icon('clock') + 'Години</h2><span class="total num">' + hrs(c.hours) + ' год</span><button class="ib" data-act="add-hours" aria-label="Додати години">' + icon('plus') + '</button></div>' +
+      (hours.length ? '<div class="rows">' + hours.map((e) => '<button class="entry" data-act="edit-hours" data-id="' + esc(e.id) + '"><span class="av ' + wcls(e.who) + '">' + esc(ini(e.who)) + '</span><span class="entry-main"><b class="num">' + hrs(e.h) + ' год</b><small>' + esc(fdate(e.date)) + ' · ' + esc(wname(e.who)) + '</small></span></button>').join('') + '</div>' : '<div class="empty">Ще не відпрацьовано годин.</div>') + '</section>';
+
+    const exps = (j.expenses || []).slice().sort(byDate);
+    h += '<section class="card"><div class="card-head"><h2>' + icon('bag') + 'Матеріали</h2><span class="total num">' + eur(c.expenses) + '</span><button class="ib" data-act="add-expense" aria-label="Додати витрату">' + icon('plus') + '</button></div>' +
+      (c.exUnpaid > 0 ? '<div class="subline bad"><span>Ще не оплачено постачальнику</span><span class="num">' + eur(c.exUnpaid) + '</span></div>' : '') +
+      (exps.length ? '<div class="rows">' + exps.map((e) => '<button class="entry" data-act="edit-expense" data-id="' + esc(e.id) + '"><span class="entry-main"><b>' + esc(e.what) + '</b><small>' + esc(fdate(e.date)) + ' ' + expTag(e) + '</small></span><span class="amt-out">' + eur(e.amount) + '</span></button>').join('') + '</div>' : '<div class="empty">Витрат ще немає.</div>') + '</section>';
+
+    const pays = (j.payments || []).slice().sort(byDate);
+    h += '<section class="card"><div class="card-head"><h2>' + icon('euro') + 'Оплати від клієнта</h2><span class="total num">' + eur(c.paid) + '</span><button class="ib" data-act="add-payment" aria-label="Додати оплату">' + icon('plus') + '</button></div>' +
+      (pays.length ? '<div class="rows">' + pays.map((e) => '<button class="entry" data-act="edit-payment" data-id="' + esc(e.id) + '"><span class="entry-main"><b>' + esc(e.note || 'Оплата') + '</b><small>' + esc(fdate(e.date)) + '</small></span><span class="amt-out in">+' + eur(e.amount) + '</span></button>').join('') + '</div>' : '<div class="empty">Оплат ще немає.</div>') + '</section>';
+
+    const pos = (j.payouts || []).slice().sort(byDate);
+    h += '<section class="card"><div class="card-head"><h2>' + icon('users') + 'Виплати працівникам</h2><span class="total num">' + eur(c.payoutsTotal) + '</span><button class="ib" data-act="add-payout" aria-label="Видати гроші працівникам">' + icon('plus') + '</button></div>' +
+      '<div class="subline"><span>У касі від клієнта</span><span class="num" style="font-weight:600;color:' + (c.cash < -0.005 ? 'var(--bad)' : 'var(--ink)') + '">' + eur(c.cash) + '</span></div>' +
+      (pos.length ? '<div class="rows">' + pos.map((e) => '<button class="entry" data-act="edit-payout" data-id="' + esc(e.id) + '"><span class="av ' + wcls(e.wid) + '">' + esc(ini(e.wid)) + '</span><span class="entry-main"><b>' + esc(wname(e.wid)) + '</b><small>' + esc(fdate(e.date)) + (e.hours ? ' · за ' + hrs(e.hours) + ' год' : '') + (e.note ? ' · ' + esc(e.note) : '') + '</small></span><span class="amt-out">−' + eur(e.amount) + '</span></button>').join('') + '</div>' : '<div class="empty">Виплат ще немає. Видайте аванс одному працівнику або розпишіть по годинах.</div>') + '</section>';
+
+    const notes = j.notes || [];
+    h += '<section class="card"><div class="card-head"><h2>' + icon('note') + 'Журнал</h2></div>' +
+      (notes.length ? '<div class="rows">' + notes.map((n) => '<div class="note-row ' + (n.struck ? 'struck' : '') + '"><button class="txt" data-act="note-strike" data-id="' + esc(n.id) + '" aria-pressed="' + !!n.struck + '"><time>' + esc(ftime(n.at)) + '</time><span>' + esc(n.text) + '</span></button><button class="ib" data-act="note-del" data-id="' + esc(n.id) + '" aria-label="Видалити запис">' + icon('x') + '</button></div>').join('') + '</div>' : '<div class="empty">Записів ще немає. Торкніться запису, щоб закреслити його.</div>') +
+      '<form class="noteform" id="note-form" autocomplete="off"><input id="note-input" type="text" placeholder="Новий запис" aria-label="Новий запис"><button class="btn btn-primary" type="submit">Додати</button></form></section>';
+    return h;
+  }
+
+  function render() {
+    const app = $('#app'), chrome = $('#chrome');
+    if (route.name === 'client' && !clientById(route.id)) route = { name: 'home' };
+    if (route.name === 'job' && !jobById(route.id)) route = { name: 'home' };
+    if (route.name === 'home') {
+      app.className = 'has-fab'; app.innerHTML = homeHtml(); renderList();
+      chrome.innerHTML = hasData() ? fab('add-client', 'Клієнт') : '';
+    } else if (route.name === 'client') {
+      app.className = 'has-fab'; app.innerHTML = clientHtml(clientById(route.id));
+      chrome.innerHTML = fab('add-job', 'Робота');
+    } else {
+      app.className = 'has-dock'; app.innerHTML = jobHtml(jobById(route.id));
+      chrome.innerHTML = '<div class="dock"><div class="dockin">' +
+        '<button class="dockbtn" data-act="add-hours">' + icon('clock') + 'Години</button>' +
+        '<button class="dockbtn" data-act="add-expense">' + icon('bag') + 'Витрата</button>' +
+        '<button class="dockbtn" data-act="add-payout">' + icon('users') + 'Виплата</button>' +
+        '<button class="dockbtn main" data-act="add-payment">' + icon('euro') + 'Оплата</button></div></div>';
+    }
+    if (focusAfter) { const el = $(focusAfter); if (el) el.focus(); focusAfter = null; }
+  }
+  const fab = (act, label) => '<div class="fabwrap"><div class="fabin"><button class="fab" data-act="' + act + '">' + icon('plus') + esc(label) + '</button></div></div>';
+
+  /* ---------- sheets ---------- */
+  let sheetState = null;
+  function openSheet(o) {
+    sheetState = o;
+    $('#sheet').innerHTML = '<div class="scrim" data-act="sheet-close"></div><form class="sheet" id="sheet-form" role="dialog" aria-modal="true" aria-labelledby="sheet-title" autocomplete="off">' +
+      '<div class="sheet-head"><h2 id="sheet-title">' + esc(o.title) + '</h2><button type="button" class="ib" data-act="sheet-close" aria-label="Закрити">' + icon('x') + '</button></div>' +
+      '<div class="sheet-body">' + o.body + '</div>' +
+      '<div class="sheet-foot">' + (o.onDelete ? '<button type="button" class="btn btn-danger" data-act="sheet-delete">Видалити</button>' : '') + '<span class="grow"></span>' +
+      '<button type="button" class="btn" data-act="sheet-close">Скасувати</button><button type="submit" class="btn btn-primary">' + esc(o.submit || 'Зберегти') + '</button></div></form>';
+    document.body.classList.add('lock');
+    if (o.onOpen) o.onOpen($('#sheet-form'));
+    const f = $('#sheet-form [data-autofocus]'); if (f) setTimeout(() => f.focus(), 40);
+  }
+  function closeSheet() { teamEdit = null; $('#sheet').innerHTML = ''; sheetState = null; document.body.classList.remove('lock'); }
+  const seg = (name, val, opts) => '<div class="seg-group" role="radiogroup">' + opts.map((o) =>
+    '<label class="seg ' + (o.cls || '') + '"><input type="radio" id="' + name + '-' + esc(o.v) + '" name="' + name + '" value="' + esc(o.v) + '"' + (o.v === val ? ' checked' : '') + (o.disabled ? ' disabled' : '') + '><span>' + esc(o.label) + '</span></label>').join('') + '</div>';
+  const jobWorkers = (j) => workerIds(j).map((id) => S.workers.find((w) => w.id === id)).filter(Boolean);
+  const workerOpts = (j) => jobWorkers(j).map((w) => ({ v: w.id, label: w.name, cls: 'wk ' + wcls(w.id) }));
+  const pickWorker = (j, id) => { const ws = jobWorkers(j); return ws.some((w) => w.id === id) ? id : (ws[0] || S.workers[0]).id; };
+
+  function clientSheet(c) {
+    openSheet({
+      title: c ? 'Редагувати клієнта' : 'Новий клієнт', submit: c ? 'Зберегти' : 'Додати',
+      body: '<div class="field"><label for="c-name">Ім’я</label><input id="c-name" name="name" type="text" required value="' + esc(c ? c.name : '') + '" data-autofocus></div>' +
+        '<div class="field"><label for="c-phone">Телефон</label><input id="c-phone" name="phone" type="tel" placeholder="+32 4XX XX XX XX" value="' + esc(c ? c.phone : '') + '"></div>' +
+        '<div class="field"><label for="c-addr">Адреса</label><input id="c-addr" name="address" type="text" placeholder="Kerkstraat 1, Gent" value="' + esc(c ? c.address : '') + '"></div>' +
+        '<div class="field"><label for="c-note">Нотатка</label><textarea id="c-note" name="note" rows="3">' + esc(c ? c.note : '') + '</textarea></div>',
+      onSubmit(fd) {
+        const name = String(fd.get('name') || '').trim(); if (!name) return false;
+        const data = { name, phone: String(fd.get('phone') || '').trim(), address: String(fd.get('address') || '').trim(), note: String(fd.get('note') || '').trim() };
+        if (c) { change(() => { Object.assign(clientById(c.id), data, { updatedAt: Date.now() }); }, 'Збережено', { undo: false }); }
+        else {
+          const nc = Object.assign({ id: uid(), createdAt: Date.now(), updatedAt: Date.now() }, data);
+          change(() => { S.clients.push(nc); }, null, { route: { name: 'client', id: nc.id } });
+          setTimeout(() => jobSheet(nc.id), 60);
+        }
+      }
+    });
+  }
+  function jobSheet(clientId, j) {
+    const mode = j ? j.mode : 'total';
+    openSheet({
+      title: j ? 'Редагувати роботу' : 'Нова робота', submit: j ? 'Зберегти' : 'Додати',
+      body: '<div class="field"><label for="j-title">Назва</label><input id="j-title" name="title" type="text" required placeholder="Напр. плитка у ванній" value="' + esc(j ? j.title : '') + '" data-autofocus></div>' +
+        '<div class="field"><span class="lbl">Як платить клієнт</span>' + seg('mode', mode, [{ v: 'total', label: 'Фіксована ціна' }, { v: 'hourly', label: 'Погодинно' }]) + '</div>' +
+        '<div class="field" id="j-pricebox"><label for="j-price">Ціна для клієнта, €</label><input id="j-price" name="price" type="number" inputmode="decimal" step="any" min="0" class="amt" value="' + (j && j.price ? j.price : '') + '"></div>' +
+        '<p class="formnote" id="j-hourlynote" hidden>Ставки кожного працівника задаються на сторінці роботи. Клієнт платить за години кожного за його ставкою плюс матеріали за рахунком.</p>',
+      onOpen(f) {
+        const upd = () => {
+          const hourly = f.querySelector('input[name=mode]:checked').value === 'hourly';
+          $('#j-pricebox', f).hidden = hourly; $('#j-hourlynote', f).hidden = !hourly; $('#j-price', f).required = !hourly;
+        };
+        $$('input[name=mode]', f).forEach((r) => r.addEventListener('change', upd)); upd();
+      },
+      onSubmit(fd) {
+        const title = String(fd.get('title') || '').trim(), md = fd.get('mode') === 'hourly' ? 'hourly' : 'total', price = num(fd.get('price'));
+        if (!title) return false;
+        if (md === 'total' && String(fd.get('price') || '') === '') return false;
+        if (j) change(() => { const x = jobById(j.id); x.title = title; x.mode = md; if (md === 'total') x.price = price; touch(x); }, 'Збережено', { undo: false });
+        else {
+          const nj = { id: uid(), clientId, title, mode: md, price: md === 'total' ? price : 0, rates: {}, pays: {}, team: [ownerId()], status: 'pending', hours: [], expenses: [], payments: [], payouts: [], notes: [], createdAt: Date.now(), updatedAt: Date.now() };
+          change(() => { S.jobs.push(nj); }, null, { route: { name: 'job', id: nj.id } });
+        }
+      }
+    });
+  }
+  function hoursSheet(jobId, id) {
+    const j = jobById(jobId), e = id ? j.hours.find((x) => x.id === id) : null;
+    if (e) {
+      openSheet({
+        title: 'Редагувати години', submit: 'Зберегти',
+        body: '<div class="grid2"><div class="field"><label for="h-val">Годин</label><input id="h-val" name="h" type="number" inputmode="decimal" step="any" min="0" required class="amt" value="' + e.h + '" data-autofocus></div>' +
+          '<div class="field"><label for="h-date">Дата</label><input id="h-date" name="date" type="date" required value="' + e.date + '"></div></div>' +
+          '<div class="field"><span class="lbl">Хто працював</span>' + seg('who', pickWorker(j, e.who), workerOpts(j)) + '</div>',
+        onSubmit(fd) {
+          const h = num(fd.get('h')); if (!(h > 0)) return false;
+          const data = { h, date: String(fd.get('date')) || todayStr(), who: String(fd.get('who')) };
+          change(() => { const x = jobById(jobId); Object.assign(x.hours.find((y) => y.id === id), data); touch(x); }, null);
+        },
+        onDelete: () => { change(() => { const x = jobById(jobId); x.hours = x.hours.filter((y) => y.id !== id); touch(x); }, 'Запис годин видалено'); closeSheet(); }
+      });
+      return;
+    }
+    const ws = jobWorkers(j), many = ws.length > 1;
+    openSheet({
+      title: 'Додати години', submit: 'Додати',
+      body: '<div class="field"><label for="h-date">Дата</label><input id="h-date" name="date" type="date" required value="' + todayStr() + '"></div>' +
+        (many ? '<div class="field"><label for="h-all">Усім по стільки годин</label><input id="h-all" type="number" inputmode="decimal" step="any" min="0" class="amt" placeholder="наприклад 6"></div>' : '') +
+        '<div class="hrows">' + ws.map((w, i) =>
+          '<div class="hrow ' + wcls(w.id) + '"><span class="av ' + wcls(w.id) + '">' + esc(ini(w.id)) + '</span><label class="grow" for="hh-' + esc(w.id) + '">' + esc(w.name) + '</label>' +
+          '<input id="hh-' + esc(w.id) + '" name="hh_' + esc(w.id) + '" data-role="hh" type="number" inputmode="decimal" step="any" min="0" class="amt" placeholder="0"' + (i === 0 && !many ? ' data-autofocus' : '') + '><span class="muted sm">год</span></div>').join('') + '</div>' +
+        '<p class="formnote">Залиште порожнім, якщо людина не працювала.</p>',
+      onOpen(f) {
+        const all = $('#h-all', f);
+        if (all) { all.setAttribute('data-autofocus', ''); all.addEventListener('input', () => { $$('[data-role=hh]', f).forEach((i) => { i.value = all.value; }); }); }
+      },
+      onSubmit(fd) {
+        const rows = ws.map((w) => ({ who: w.id, h: num(fd.get('hh_' + w.id)) })).filter((r) => r.h > 0);
+        if (!rows.length) { toast('Вкажіть години хоча б одному'); return false; }
+        const date = String(fd.get('date')) || todayStr();
+        change(() => { const x = jobById(jobId); rows.forEach((r) => x.hours.push({ id: uid(), at: Date.now(), who: r.who, h: r.h, date })); touch(x); }, null);
+      }
+    });
+  }
+  function expenseSheet(jobId, id) {
+    const j = jobById(jobId), e = id ? j.expenses.find((x) => x.id === id) : null;
+    const c = calc(j);
+    const available = c.cash + (e && e.paid !== false && e.paidBy === 'common' ? +e.amount : 0);
+    const isPaid = e ? e.paid !== false : true;
+    openSheet({
+      title: e ? 'Редагувати витрату' : 'Нова витрата', submit: e ? 'Зберегти' : 'Додати',
+      body: '<div class="field"><label for="x-amt">Сума, €</label><input id="x-amt" name="amount" type="number" inputmode="decimal" step="any" min="0" required class="amt" value="' + (e ? e.amount : '') + '" data-autofocus></div>' +
+        '<div class="field"><label for="x-what">Що купили</label><input id="x-what" name="what" type="text" required placeholder="Плитка, клей, фуга…" value="' + esc(e ? e.what : '') + '"></div>' +
+        '<div class="field"><label for="x-date">Дата</label><input id="x-date" name="date" type="date" required value="' + (e ? e.date : todayStr()) + '"></div>' +
+        '<div class="field"><span class="lbl">Оплачено постачальнику?</span>' + seg('paid', isPaid ? 'yes' : 'no', [{ v: 'yes', label: 'Так, оплачено' }, { v: 'no', label: 'Ні, ще винні', cls: 'bad' }]) + '</div>' +
+        '<div class="field" id="x-payer"><span class="lbl">Хто заплатив</span>' + seg('paidBy', e && e.paid !== false ? e.paidBy : pickWorker(j, lastPayer), workerOpts(j).concat([{ v: 'common', label: 'З авансу' }])) + '<p class="formnote" id="x-note"></p></div>',
+      onOpen(f) {
+        const amt = $('#x-amt', f), adv = $('#paidBy-common', f), note = $('#x-note', f);
+        const upd = () => {
+          const unpaid = f.querySelector('input[name=paid]:checked').value === 'no';
+          $('#x-payer', f).hidden = unpaid;
+          const a = num(amt.value), ok = a > 0 && a <= available + 0.001;
+          adv.disabled = !ok;
+          if (!ok && adv.checked) $('#paidBy-' + pickWorker(j, lastPayer), f).checked = true;
+          note.className = 'formnote' + (!ok && a > 0 ? ' bad' : '');
+          note.textContent = 'Аванс у касі, доступно: ' + eur(Math.max(0, available));
+        };
+        amt.addEventListener('input', upd); $$('input[name=paid]', f).forEach((r) => r.addEventListener('change', upd)); upd();
+      },
+      onSubmit(fd) {
+        const amount = num(fd.get('amount')), what = String(fd.get('what') || '').trim(); if (!(amount > 0) || !what) return false;
+        const paid = fd.get('paid') !== 'no', pb = String(fd.get('paidBy') || '');
+        const data = { amount, what, date: String(fd.get('date')) || todayStr(), paid, paidBy: paid ? pb : null };
+        if (paid && pb !== 'common') lastPayer = pb;
+        change(() => { const x = jobById(jobId); if (e) Object.assign(x.expenses.find((y) => y.id === id), data); else x.expenses.push(Object.assign({ id: uid(), at: Date.now() }, data)); touch(x); }, null);
+      },
+      onDelete: e ? () => { change(() => { const x = jobById(jobId); x.expenses = x.expenses.filter((y) => y.id !== id); touch(x); }, 'Витрату видалено'); closeSheet(); } : null
+    });
+  }
+  function paymentSheet(jobId, id) {
+    const j = jobById(jobId), e = id ? j.payments.find((x) => x.id === id) : null;
+    const c = calc(j), rest = e ? c.remaining + (+e.amount) : c.remaining;
+    openSheet({
+      title: e ? 'Редагувати оплату' : 'Нова оплата від клієнта', submit: e ? 'Зберегти' : 'Підтвердити',
+      body: '<div class="field"><div class="payline"><label for="p-amt" class="lbl">Сума, €</label>' + (rest > 0 ? '<button type="button" class="btn btn-sm" data-act="fill-rest" data-v="' + r2(rest) + '">Весь залишок ' + eur(rest) + '</button>' : '') + '</div>' +
+        '<input id="p-amt" name="amount" type="number" inputmode="decimal" step="any" min="0" required class="amt" placeholder="0" value="' + (e ? e.amount : '') + '" data-autofocus></div>' +
+        '<div class="grid2"><div class="field"><label for="p-date">Дата</label><input id="p-date" name="date" type="date" required value="' + (e ? e.date : todayStr()) + '"></div>' +
+        '<div class="field"><label for="p-note">Нотатка</label><input id="p-note" name="note" type="text" placeholder="Аванс, готівка…" value="' + esc(e ? e.note : '') + '"></div></div>',
+      onSubmit(fd) {
+        const amount = num(fd.get('amount')); if (!(amount > 0)) return false;
+        const data = { amount, date: String(fd.get('date')) || todayStr(), note: String(fd.get('note') || '').trim() };
+        change(() => { const x = jobById(jobId); if (e) Object.assign(x.payments.find((y) => y.id === id), data); else x.payments.push(Object.assign({ id: uid(), at: Date.now() }, data)); touch(x); }, null);
+      },
+      onDelete: e ? () => { change(() => { const x = jobById(jobId); x.payments = x.payments.filter((y) => y.id !== id); touch(x); }, 'Оплату видалено'); closeSheet(); } : null
+    });
+  }
+
+  /* Payout sheet: one row per worker. Type hours and the amount follows the worker's rate,
+     or type an amount directly. Leave a row empty to skip that worker. */
+  function payoutSheet(jobId) {
+    const j = jobById(jobId), c = calc(j);
+    let ids = c.ids.filter((id) => c.W[id].h > 0 || c.W[id].due > 0 || c.W[id].paidOut > 0);
+    if (!ids.length) ids = c.ids.slice();
+    const rows = ids.map((id) => {
+      const w = c.W[id];
+      return '<div class="porow ' + wcls(id) + '" data-wid="' + esc(id) + '"><div class="who"><span class="av ' + wcls(id) + '">' + esc(ini(id)) + '</span><span class="grow"><b>' + esc(wname(id)) + '</b>' +
+        '<small>' + (w.payRate ? 'ставка ' + eur(w.payRate) + '/год · ' : '') + 'не виплачено ' + hrs(w.unpaidH) + ' год · лишилось ' + eur(w.balance) + '</small></span></div>' +
+        '<div class="grid2"><div class="field"><label for="po-h-' + esc(id) + '">За скільки годин</label><input id="po-h-' + esc(id) + '" name="h_' + esc(id) + '" data-role="h" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>' +
+        '<div class="field"><label for="po-a-' + esc(id) + '">Сума, €</label><input id="po-a-' + esc(id) + '" name="a_' + esc(id) + '" data-role="a" class="num" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div></div></div>';
+    }).join('');
+    openSheet({
+      title: 'Виплата працівникам', submit: 'Видати',
+      body: '<p class="formnote" id="po-cash"></p>' +
+        '<div class="grid2"><div class="field"><label for="po-date">Дата</label><input id="po-date" name="date" type="date" required value="' + todayStr() + '"></div>' +
+        '<div class="field"><label for="po-note">Нотатка</label><input id="po-note" name="note" type="text" placeholder="Аванс, готівка…"></div></div>' +
+        '<div class="btnrow"><button type="button" class="btn btn-sm" data-act="po-fill-hours">За всі невиплачені години</button><button type="button" class="btn btn-sm" data-act="po-fill-balance">Закрити залишок</button><button type="button" class="btn btn-sm" data-act="po-clear">Очистити</button></div>' +
+        rows + '<div class="pototal"><span>Разом до видачі</span><span class="num" id="po-total">€0</span></div>',
+      onOpen(f) {
+        const rowEls = $$('.porow', f);
+        const upd = () => {
+          const t = sum(rowEls, (r) => num($('[data-role=a]', r).value)), after = c.cash - t;
+          $('#po-total', f).textContent = eur(t);
+          const n = $('#po-cash', f); n.className = 'formnote' + (after < -0.005 ? ' bad' : '');
+          n.textContent = 'У касі від клієнта: ' + eur(c.cash) + '. Після виплат: ' + eur(after) + (after < -0.005 ? ' (більше, ніж отримано від клієнта)' : '');
+        };
+        rowEls.forEach((r) => {
+          const rate = c.W[r.dataset.wid] ? c.W[r.dataset.wid].payRate : 0;
+          $('[data-role=h]', r).addEventListener('input', (ev) => { const h = num(ev.target.value); if (rate > 0) $('[data-role=a]', r).value = h > 0 ? r2(h * rate) : ''; upd(); });
+          $('[data-role=a]', r).addEventListener('input', upd);
+        });
+        sheetState.fill = (mode) => {
+          rowEls.forEach((r) => {
+            const w = c.W[r.dataset.wid], hi = $('[data-role=h]', r), ai = $('[data-role=a]', r);
+            if (mode === 'clear') { hi.value = ''; ai.value = ''; return; }
+            if (mode === 'hours') { hi.value = w.unpaidH > 0 ? r2(w.unpaidH) : ''; ai.value = w.unpaidH > 0 && w.payRate > 0 ? r2(w.unpaidH * w.payRate) : ''; }
+            if (mode === 'balance') { hi.value = w.unpaidH > 0 ? r2(w.unpaidH) : ''; ai.value = w.balance > 0.005 ? r2(w.balance) : ''; }
+          });
+          upd();
+        };
+        upd();
+      },
+      onSubmit(fd) {
+        const date = String(fd.get('date')) || todayStr(), note = String(fd.get('note') || '').trim(), items = [];
+        ids.forEach((id) => {
+          const a = num(fd.get('a_' + id)), h = num(fd.get('h_' + id));
+          if (a > 0) items.push({ id: uid(), wid: id, amount: a, hours: h > 0 ? h : 0, date, note, at: Date.now() });
+        });
+        if (!items.length) { toast('Вкажіть суму хоча б для одного працівника'); return false; }
+        change(() => { const x = jobById(jobId); x.payouts = (x.payouts || []).concat(items); touch(x); }, items.length > 1 ? 'Видано ' + items.length + ' працівникам' : 'Виплату додано');
+      }
+    });
+  }
+  function payoutEditSheet(jobId, id) {
+    const j = jobById(jobId), e = j.payouts.find((x) => x.id === id); if (!e) return;
+    openSheet({
+      title: 'Редагувати виплату',
+      body: '<div class="field"><span class="lbl">Кому</span>' + seg('wid', pickWorker(j, e.wid), workerOpts(j)) + '</div>' +
+        '<div class="grid2"><div class="field"><label for="pe-amt">Сума, €</label><input id="pe-amt" name="amount" type="number" inputmode="decimal" step="any" min="0" required class="amt" value="' + e.amount + '" data-autofocus></div>' +
+        '<div class="field"><label for="pe-h">За годин</label><input id="pe-h" name="hours" type="number" inputmode="decimal" step="any" min="0" class="amt" value="' + (e.hours || '') + '"></div></div>' +
+        '<div class="grid2"><div class="field"><label for="pe-date">Дата</label><input id="pe-date" name="date" type="date" required value="' + esc(e.date) + '"></div>' +
+        '<div class="field"><label for="pe-note">Нотатка</label><input id="pe-note" name="note" type="text" value="' + esc(e.note || '') + '"></div></div>',
+      onSubmit(fd) {
+        const amount = num(fd.get('amount')); if (!(amount > 0)) return false;
+        const data = { wid: String(fd.get('wid')), amount, hours: num(fd.get('hours')), date: String(fd.get('date')) || todayStr(), note: String(fd.get('note') || '').trim() };
+        change(() => { const x = jobById(jobId); Object.assign(x.payouts.find((y) => y.id === id), data); touch(x); }, null);
+      },
+      onDelete: () => { change(() => { const x = jobById(jobId); x.payouts = x.payouts.filter((y) => y.id !== id); touch(x); }, 'Виплату видалено'); closeSheet(); }
+    });
+  }
+
+  /* settings: team, backup, import */
+  const workerUsed = (id) => S.jobs.some((j) => (j.hours || []).some((h) => h.who === id) || (j.expenses || []).some((e) => e.paidBy === id) || (j.payouts || []).some((p) => p.wid === id));
+  function jobTeamSheet(jobId) {
+    const j = jobById(jobId); if (!j) return;
+    const inTeam = new Set(workerIds(j));
+    const dir = S.workers.filter((w) => !inTeam.has(w.id));
+    const names = new Set(S.workers.map((w) => w.name.trim().toLowerCase()));
+    const sug = SUGGEST.filter((n) => !names.has(n.toLowerCase()));
+    const chips = dir.map((w) => '<button type="button" class="btn btn-sm" data-act="jt-add-id" data-id="' + esc(w.id) + '">' + icon('plus', 'sm') + esc(w.name) + '</button>')
+      .concat(sug.map((n) => '<button type="button" class="btn btn-sm" data-act="jt-add-name" data-name="' + esc(n) + '">' + icon('plus', 'sm') + esc(n) + '</button>')).join('');
+    openSheet({
+      title: 'Додати до роботи', submit: 'Готово',
+      body: (chips ? '<div class="field"><span class="lbl">Швидко</span><div class="btnrow">' + chips + '</div></div>' : '') +
+        '<div class="field"><span class="lbl">Нова людина</span><div class="addrow"><input id="jt-new" type="text" placeholder="Ім’я" aria-label="Ім’я працівника"><button type="button" class="btn" data-act="jt-add-typed">Додати</button></div></div>' +
+        '<p class="formnote">Склад команди задається окремо для кожної роботи. Ставки беруться зі стандартних і змінюються на сторінці роботи.</p>'
+    });
+  }
+  function jobAddWorker(jobId, ref) {
+    const j = jobById(jobId); if (!j) return;
+    let w = null;
+    if (ref.id) w = S.workers.find((x) => x.id === ref.id);
+    else {
+      const name = String(ref.name || '').trim(); if (!name) return;
+      w = S.workers.find((x) => x.name.trim().toLowerCase() === name.toLowerCase());
+      if (!w) w = { id: uid(), name, rate: DEFAULT_RATE, _new: true };
+    }
+    if (!w) return;
+    if (workerIds(j).indexOf(w.id) >= 0) { toast('«' + w.name + '» уже в команді роботи'); return; }
+    const isNew = w._new; if (isNew) delete w._new;
+    closeSheet();
+    change(() => { if (isNew) S.workers.push(w); j.team = (j.team || []).concat(w.id); touch(j); }, '«' + w.name + '» додано до роботи');
+  }
+  function teamSheet() {
+    const rows = S.workers.map((w) => {
+      if (teamEdit === w.id) {
+        return '<div class="trow"><div class="field"><label for="tw-n">Ім’я</label><input id="tw-n" name="wname" type="text" required value="' + esc(w.name) + '"></div>' +
+          '<div class="field"><label for="tw-r">Клієнт</label><input id="tw-r" name="wrate" type="number" inputmode="decimal" step="any" min="0" value="' + (+w.rate || DEFAULT_RATE) + '"></div>' +
+          (w.id === ownerId() ? '<span></span>' : '<div class="field"><label for="tw-p">Йому</label><input id="tw-p" name="wpay" type="number" inputmode="decimal" step="any" min="0" placeholder="так само" value="' + (+w.pay > 0 ? w.pay : '') + '"></div>') +
+          '<button type="button" class="ib" data-act="team-save" aria-label="Зберегти">' + icon('check') + '</button></div>';
+      }
+      const used = workerUsed(w.id), last = S.workers.length < 2;
+      return '<div class="trow2 ' + wcls(w.id) + '"><span class="av ' + wcls(w.id) + '">' + esc(ini(w.id)) + '</span><span class="grow"><b>' + esc(w.name) + '</b><small>' + (w.id !== ownerId() && +w.pay > 0 && +w.pay !== (+w.rate || DEFAULT_RATE) ? 'клієнт ' + eur(+w.rate || DEFAULT_RATE) + ' · йому ' + eur(+w.pay) + '/год' : eur(+w.rate || DEFAULT_RATE) + '/год за замовчуванням') + '</small></span>' +
+        '<button type="button" class="ib" data-act="team-edit" data-id="' + esc(w.id) + '" aria-label="Змінити ' + esc(w.name) + '">' + icon('edit') + '</button>' +
+        '<button type="button" class="ib bad" data-act="team-del" data-id="' + esc(w.id) + '"' + (used || last ? ' disabled title="' + (used ? 'Є записи в роботах' : 'Потрібен хоча б один працівник') + '"' : '') + ' aria-label="Прибрати ' + esc(w.name) + '">' + icon('trash') + '</button></div>';
+    }).join('');
+    const sug = SUGGEST.filter((n) => !S.workers.some((w) => w.name.trim().toLowerCase() === n.toLowerCase()));
+    openSheet({
+      title: 'Команда', submit: 'Готово',
+      body: '<div class="rows card" style="overflow:visible">' + rows + '</div>' +
+        '<p class="formnote">«Клієнт» — скільки платить клієнт за годину, «Йому» — скільки платите ви працівнику, різниця ваша. Порожнє поле означає однакові ставки. Працівника із записами прибрати не можна.</p>' +
+        '<div class="field"><span class="lbl">Додати працівника</span>' +
+        (sug.length ? '<div class="btnrow">' + sug.map((n) => '<button type="button" class="btn btn-sm" data-act="team-add-name" data-name="' + esc(n) + '">' + icon('plus', 'sm') + esc(n) + '</button>').join('') + '</div>' : '') +
+        '<div class="addrow"><input id="tw-new" type="text" placeholder="Інше ім’я" aria-label="Ім’я нового працівника"><button type="button" class="btn" data-act="team-add-typed">Додати</button></div></div>',
+      onSubmit() { if (teamEdit) { saveTeamEdit(); return false; } }
+    });
+  }
+  function saveTeamEdit() {
+    const id = teamEdit, n = $('#tw-n'), r = $('#tw-r'), pf = $('#tw-p'); if (!id || !n) return;
+    const name = n.value.trim(); if (!name) { toast('Вкажіть ім’я'); return; }
+    teamEdit = null;
+    change(() => { const w = S.workers.find((x) => x.id === id); if (w) { w.name = name; w.rate = num(r.value) > 0 ? num(r.value) : DEFAULT_RATE; if (pf && num(pf.value) > 0 && num(pf.value) !== w.rate) w.pay = num(pf.value); else delete w.pay; } }, null);
+    teamSheet();
+  }
+  function teamAdd(name) {
+    name = String(name || '').trim(); if (!name) return;
+    if (S.workers.some((w) => w.name.trim().toLowerCase() === name.toLowerCase())) { toast('«' + name + '» уже є в команді'); return; }
+    teamEdit = null;
+    change(() => { S.workers.push({ id: uid(), name, rate: DEFAULT_RATE }); }, null);
+    teamSheet();
+  }
+  function settingsSheet() {
+    openSheet({
+      title: 'Налаштування', submit: 'Готово',
+      body: '<div class="field"><span class="lbl">Команда</span><div class="btnrow"><button type="button" class="btn" data-act="team">' + icon('users') + 'Працівники і ставки</button></div></div>' +
+        '<div class="field"><span class="lbl">Резервна копія</span><div class="btnrow"><button type="button" class="btn" data-act="export-file">Зберегти файл</button><button type="button" class="btn" data-act="export-copy">Копіювати JSON</button></div></div>' +
+        '<div class="field"><label for="imp-text">Імпорт (нова або стара версія)</label><textarea id="imp-text" rows="3" placeholder="Вставте JSON сюди"></textarea>' +
+        '<input id="imp-file" type="file" accept=".json,application/json" aria-label="Файл імпорту"><div class="btnrow"><button type="button" class="btn" data-act="import-run">Додати до моїх даних</button></div>' +
+        '<p class="formnote">Зі старої версії: у консолі браузера виконайте <code>copy(JSON.stringify({clients:JSON.parse(localStorage.clients),jobs:JSON.parse(localStorage.jobs),payments:JSON.parse(localStorage.payments)}))</code> і вставте результат.</p></div>' +
+        '<div class="field"><button type="button" class="btn btn-danger" data-act="wipe">Видалити всі дані</button></div>'
+    });
+  }
+
+  /* ---------- import / export ---------- */
+  function msToDate(v) { const d = new Date(+v); return isNaN(d) ? todayStr() : ymd(d); }
+  function toDate(v) { if (typeof v === 'string' && /^\d{4}-\d\d-\d\d/.test(v)) return v.slice(0, 10); if (v) return msToDate(v); return todayStr(); }
+  function normalize(o) {
+    if (!o || typeof o !== 'object') throw new Error('bad');
+    const out = { clients: [], jobs: [], workers: [] };
+    const pays = Array.isArray(o.payments) ? o.payments : [];
+    (Array.isArray(o.workers) ? o.workers : []).forEach((w) => { if (w && w.id && w.name) out.workers.push(Object.assign({ id: String(w.id), name: String(w.name), rate: num(w.rate) }, num(w.pay) > 0 ? { pay: num(w.pay) } : {})); });
+    (Array.isArray(o.clients) ? o.clients : []).forEach((c) => {
+      if (!c || !c.id || !c.name) return;
+      out.clients.push({ id: String(c.id), name: String(c.name), phone: c.phone || '', address: c.address || '', note: c.note != null ? c.note : (c.description || ''), createdAt: c.createdAt || Date.now(), updatedAt: c.updatedAt || Date.now() });
+    });
+    (Array.isArray(o.jobs) ? o.jobs : []).forEach((j) => {
+      if (!j || !j.id || !j.clientId) return;
+      const own = Array.isArray(j.payments) ? j.payments : pays.filter((p) => p.jobId === j.id);
+      out.jobs.push({
+        id: String(j.id), clientId: String(j.clientId), title: String(j.title || 'Без назви'), price: num(j.price != null ? j.price : j.totalPrice),
+        mode: j.mode === 'hourly' ? 'hourly' : 'total', rates: j.rates && typeof j.rates === 'object' ? j.rates : {}, pays: j.pays && typeof j.pays === 'object' ? j.pays : {}, team: Array.isArray(j.team) ? j.team.map(String) : undefined,
+        status: STATUS[j.status] ? j.status : 'pending', createdAt: j.createdAt || Date.now(), updatedAt: j.updatedAt || Date.now(),
+        hours: (j.hours || []).map((h) => ({ id: String(h.id || uid()), who: String(h.who || h.worker || 'me'), h: num(h.h != null ? h.h : h.hours), date: toDate(h.date || h.timestamp || h.at), at: h.at || h.timestamp || Date.now() })),
+        expenses: (j.expenses || []).map((e) => { const paid = e.paid !== false; return { id: String(e.id || uid()), what: String(e.what != null ? e.what : (e.description || 'Витрата')), amount: num(e.amount), paid, paidBy: paid ? String(e.paidBy || 'me') : null, date: toDate(e.date || e.timestamp || e.at), at: e.at || e.timestamp || Date.now() }; }),
+        payments: own.map((p) => ({ id: String(p.id || uid()), amount: num(p.amount), date: toDate(p.date || p.createdAt || p.at), note: p.note || '', at: p.at || p.createdAt || Date.now() })),
+        payouts: (j.payouts || []).map((p) => ({ id: String(p.id || uid()), wid: String(p.wid || 'me'), amount: num(p.amount), hours: num(p.hours), date: toDate(p.date), note: p.note || '', at: p.at || Date.now() })),
+        notes: (j.notes || []).map((n) => ({ id: String(n.id || uid()), text: String(n.text || ''), at: n.at || n.timestamp || Date.now(), struck: !!(n.struck != null ? n.struck : n.isStruck) }))
+      });
+    });
+    out.jobs.forEach((j) => deriveTeam(j, 'me'));
+    return out;
+  }
+  function importText(text) {
+    let data; try { data = normalize(JSON.parse(text)); } catch (e) { toast('Не вдалося прочитати JSON'); return; }
+    const cIds = new Set(S.clients.map((c) => c.id)), jIds = new Set(S.jobs.map((j) => j.id)), wIds = new Set(S.workers.map((w) => w.id));
+    const nc = data.clients.filter((c) => !cIds.has(c.id)), nj = data.jobs.filter((j) => !jIds.has(j.id)), nw = data.workers.filter((w) => !wIds.has(w.id));
+    if (!nc.length && !nj.length && !nw.length) { toast('Нових записів немає'); return; }
+    change(() => { S.clients = S.clients.concat(nc); S.jobs = S.jobs.concat(nj); S.workers = S.workers.concat(nw); }, 'Додано: ' + nc.length + ' ' + plural(nc.length, ['клієнт', 'клієнти', 'клієнтів']) + ', ' + nj.length + ' ' + plural(nj.length, JOBS));
+    closeSheet();
+  }
+  function exportJson() { return JSON.stringify({ v: 3, clients: S.clients, jobs: S.jobs, workers: S.workers }, null, 2); }
+
+  function sampleData() {
+    const d = (n) => { const x = new Date(); x.setDate(x.getDate() - n); return ymd(x); };
+    const c1 = { id: uid(), name: 'Ван ден Берг', phone: '0471234567', address: 'Kerkstraat 12, Gent', note: 'Ключ у сусідів, дзвонити після 17:00.', createdAt: Date.now(), updatedAt: Date.now(), sample: true };
+    const c2 = { id: uid(), name: 'Peeters Bouw', phone: '+32 9 123 45 67', address: 'Dorpsplein 3, Merelbeke', note: '', createdAt: Date.now(), updatedAt: Date.now(), sample: true };
+    const mk = (cl, title, mode, price, rates, status, hours, exps, pays, pouts, notes) => ({ id: uid(), clientId: cl.id, title, mode, price, rates, status, createdAt: Date.now(), updatedAt: Date.now(), sample: true,
+      hours: hours.map((x) => ({ id: uid(), who: x[0], h: x[1], date: d(x[2]), at: Date.now() })),
+      expenses: exps.map((x) => ({ id: uid(), what: x[0], amount: x[1], paidBy: x[2], paid: x[2] !== null, date: d(x[3]), at: Date.now() })),
+      payments: pays.map((x) => ({ id: uid(), amount: x[0], date: d(x[1]), note: x[2], at: Date.now() })),
+      payouts: pouts.map((x) => ({ id: uid(), wid: x[0], amount: x[1], hours: x[2], date: d(x[3]), note: x[4], at: Date.now() })),
+      notes: notes.map((t) => ({ id: uid(), text: t, at: Date.now(), struck: false })) });
+    return {
+      clients: [c1, c2], jobs: [
+        mk(c1, 'Ванна: плитка і фуга', 'total', 2400, {}, 'in_progress', [['me', 8, 6], ['partner', 6, 6], ['me', 6, 3], ['partner', 4, 3]], [['Плитка', 620, 'me', 8], ['Клей і фуга', 85, 'partner', 6], ['Гідроізоляція', 300, 'common', 7], ['Профілі', 45, null, 2]], [[1000, 9, 'Аванс']], [['me', 400, 0, 5, 'Аванс']], ['Стіни вирівняні, завтра плитка.', 'Клієнт просить матову фугу.']),
+        mk(c2, 'Фасад: фарбування', 'hourly', 0, { me: 30, partner: 25 }, 'in_progress', [['me', 10, 4], ['partner', 10, 4]], [['Фарба', 180, 'partner', 5], ['Валики', 40, null, 4]], [[300, 3, 'Аванс']], [['me', 150, 5, 2, 'За 5 годин'], ['partner', 125, 5, 2, 'За 5 годин']], [])
+      ]
+    };
+  }
+
+  /* ---------- events ---------- */
+  document.addEventListener('click', async (ev) => {
+    const t = ev.target.closest('[data-act]'); if (!t) return;
+    const act = t.dataset.act, id = t.dataset.id;
+    const job = route.name === 'job' ? jobById(route.id) : null;
+    switch (act) {
+      case 'go-home': go({ name: 'home' }); break;
+      case 'go-client': go({ name: 'client', id: id }); break;
+      case 'open-client': go({ name: 'client', id: id }); break;
+      case 'open-job': go({ name: 'job', id: id }); break;
+      case 'add-client': clientSheet(); break;
+      case 'edit-client': clientSheet(clientById(route.id)); break;
+      case 'del-client': {
+        const cid = route.id, nm0 = clientById(cid).name;
+        change(() => { S.clients = S.clients.filter((c) => c.id !== cid); S.jobs = S.jobs.filter((j) => j.clientId !== cid); }, 'Клієнта «' + nm0 + '» видалено', { route: { name: 'home' } });
+        break;
+      }
+      case 'add-job': jobSheet(route.id); break;
+      case 'edit-job': jobSheet(job.clientId, job); break;
+      case 'del-job': {
+        const jid = job.id, cid = job.clientId;
+        change(() => { S.jobs = S.jobs.filter((j) => j.id !== jid); }, 'Роботу видалено', { route: { name: 'client', id: cid } });
+        break;
+      }
+      case 'status': change(() => { job.status = t.dataset.v; touch(job); }, null); break;
+      case 'add-hours': hoursSheet(job.id); break;
+      case 'edit-hours': hoursSheet(job.id, id); break;
+      case 'add-expense': expenseSheet(job.id); break;
+      case 'edit-expense': expenseSheet(job.id, id); break;
+      case 'add-payment': paymentSheet(job.id); break;
+      case 'edit-payment': paymentSheet(job.id, id); break;
+      case 'add-payout': payoutSheet(job.id); break;
+      case 'edit-payout': payoutEditSheet(job.id, id); break;
+      case 'po-fill-hours': if (sheetState && sheetState.fill) sheetState.fill('hours'); break;
+      case 'po-fill-balance': if (sheetState && sheetState.fill) sheetState.fill('balance'); break;
+      case 'po-clear': if (sheetState && sheetState.fill) sheetState.fill('clear'); break;
+      case 'fill-rest': { const f = $('#p-amt'); if (f) { f.value = t.dataset.v; f.focus(); } break; }
+      case 'note-strike': change(() => { const n = job.notes.find((x) => x.id === id); n.struck = !n.struck; touch(job); }, null); break;
+      case 'note-del': change(() => { job.notes = job.notes.filter((x) => x.id !== id); touch(job); }, 'Запис видалено'); break;
+      case 'filter': filter = t.dataset.v; render(); break;
+      case 'settings': settingsSheet(); break;
+      case 'team': teamEdit = null; teamSheet(); break;
+      case 'jt-add': if (job) { jobTeamSheet(job.id); setTimeout(() => { const f = $('#jt-new'); if (f) f.focus(); }, 60); } break;
+      case 'jt-add-id': if (job) jobAddWorker(job.id, { id }); break;
+      case 'jt-add-name': if (job) jobAddWorker(job.id, { name: t.dataset.name }); break;
+      case 'jt-add-typed': { const f = $('#jt-new'); if (job && f) jobAddWorker(job.id, { name: f.value }); break; }
+      case 'jt-del': {
+        if (t.disabled || !job) break;
+        const w = S.workers.find((x) => x.id === id); if (!w) break;
+        change(() => { job.team = (job.team || []).filter((x) => x !== id); if (job.rates) delete job.rates[id]; if (job.pays) delete job.pays[id]; touch(job); }, '«' + w.name + '» прибрано з роботи'); break;
+      }
+      case 'team-edit': teamEdit = id; teamSheet(); setTimeout(() => { const f = $('#tw-n'); if (f) { f.focus(); f.select(); } }, 40); break;
+      case 'team-save': saveTeamEdit(); break;
+      case 'team-add-name': teamAdd(t.dataset.name); break;
+      case 'team-add-typed': { const f = $('#tw-new'); teamAdd(f ? f.value : ''); setTimeout(() => { const g = $('#tw-new'); if (g) g.focus(); }, 40); break; }
+      case 'team-del': {
+        if (t.disabled) break;
+        const w = S.workers.find((x) => x.id === id); if (!w) break;
+        change(() => { S.workers = S.workers.filter((x) => x.id !== id); }, '«' + w.name + '» прибрано з команди');
+        teamSheet(); break;
+      }
+      case 'rate-edit': rateEdit = id; render(); setTimeout(() => { const f = $('#rate-' + id); if (f) { f.focus(); f.select(); } }, 30); break;
+      case 'rate-cancel': rateEdit = null; render(); break;
+      case 'rate-save': {
+        const f = $('#rate-' + id), pf = $('#pay-' + id), w = S.workers.find((x) => x.id === id); if (!f || !job) break;
+        const v = Math.max(0, num(f.value)), std = w ? (+w.rate || DEFAULT_RATE) : DEFAULT_RATE;
+        const pv = pf ? Math.max(0, num(pf.value)) : null;
+        rateEdit = null;
+        change(() => {
+          job.rates = job.rates || {}; job.pays = job.pays || {};
+          if (v === std) delete job.rates[id]; else job.rates[id] = v;
+          if (pv == null) delete job.pays[id];
+          else { const stdPay = w && +w.pay > 0 ? +w.pay : v; if (pv === stdPay) delete job.pays[id]; else job.pays[id] = pv; }
+          touch(job);
+        }, null); break;
+      }
+      case 'sheet-close': closeSheet(); break;
+      case 'sheet-delete': if (sheetState && sheetState.onDelete) sheetState.onDelete(); break;
+      case 'undo': {
+        const el = $('#toast'), b = el._before; if (!b) break;
+        S = migrate(JSON.parse(b)); el.hidden = true; el._before = null; save(); render(); break;
+      }
+      case 'retry-sync': if (refs) { dirty = true; setSync('saving'); flush(); } break;
+      case 'load-sample': { const s = sampleData(); s.jobs.forEach((j) => deriveTeam(j, ownerId())); change(() => { if (!S.workers.some((w) => w.id === 'partner')) S.workers.push({ id: 'partner', name: 'Міша', rate: DEFAULT_RATE }); S.clients = S.clients.concat(s.clients); S.jobs = S.jobs.concat(s.jobs); }, null); break; }
+      case 'clear-sample': change(() => { S.clients = S.clients.filter((c) => !c.sample); S.jobs = S.jobs.filter((j) => !j.sample); }, 'Приклад прибрано'); break;
+      case 'export-copy': {
+        const txt = exportJson();
+        try { await navigator.clipboard.writeText(txt); toast('JSON скопійовано'); }
+        catch (e) { const ta = $('#imp-text'); if (ta) { ta.value = txt; ta.focus(); ta.select(); } toast('Скопіюйте текст із поля вручну'); }
+        break;
+      }
+      case 'export-file': {
+        try {
+          const dl = window.claude && window.claude.use ? await window.claude.use('downloads') : null;
+          if (!dl) { toast('Файли тут недоступні. Скористайтесь «Копіювати JSON»'); break; }
+          await dl.save({ filename: 'masters-' + todayStr() + '.json', data: exportJson() });
+        } catch (e) { if (!e || e.code !== 'declined') toast('Не вдалося зберегти файл'); }
+        break;
+      }
+      case 'import-run': {
+        const ta = $('#imp-text'), fi = $('#imp-file');
+        if (fi && fi.files && fi.files[0]) { try { importText(await fi.files[0].text()); } catch (e) { toast('Не вдалося прочитати файл'); } }
+        else if (ta && ta.value.trim()) importText(ta.value);
+        else toast('Вставте JSON або виберіть файл');
+        break;
+      }
+      case 'wipe': {
+        if (t.dataset.armed !== '1') { t.dataset.armed = '1'; t.textContent = 'Так, видалити все'; break; }
+        change(() => { S.clients = []; S.jobs = []; }, 'Усі дані видалено', { route: { name: 'home' } }); closeSheet(); break;
+      }
+    }
+  });
+  document.addEventListener('submit', (ev) => {
+    const f = ev.target;
+    if (f.id === 'sheet-form') {
+      ev.preventDefault();
+      if (!sheetState) return;
+      if (sheetState.onSubmit(new FormData(f)) !== false) closeSheet();
+    } else if (f.id === 'note-form') {
+      ev.preventDefault();
+      const inp = $('#note-input'), text = inp.value.trim(), j = jobById(route.id); if (!text || !j) return;
+      focusAfter = '#note-input';
+      change(() => { j.notes.push({ id: uid(), text, at: Date.now(), struck: false }); touch(j); }, null);
+    }
+  });
+  document.addEventListener('input', (ev) => { if (ev.target.id === 'search') { search = ev.target.value; renderList(); } });
+  document.addEventListener('keydown', (ev) => {
+    const t = ev.target;
+    if (t.classList && t.classList.contains('ratein')) {
+      if (ev.key === 'Enter') { ev.preventDefault(); const b = $('[data-act=rate-save]'); if (b) b.click(); }
+      else if (ev.key === 'Escape') { rateEdit = null; render(); }
+      return;
+    }
+    if (t.id === 'jt-new' && ev.key === 'Enter') { ev.preventDefault(); const jb = jobById(route.id); if (jb) jobAddWorker(jb.id, { name: t.value }); return; }
+    if (t.id === 'tw-new' && ev.key === 'Enter') { ev.preventDefault(); teamAdd(t.value); setTimeout(() => { const g = $('#tw-new'); if (g) g.focus(); }, 40); return; }
+    if (ev.key === 'Escape' && sheetState) closeSheet();
+  });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
+
+  /* ---------- boot ---------- */
+  loadLocal();
+  route = parseHash();
+  render();
+  setTimeout(() => { if (booting) { booting = false; if (route.name === 'home') render(); } }, 3000);
+  initDb().finally(() => { booting = false; if (!sheetState) render(); });
+})();
+</script>
