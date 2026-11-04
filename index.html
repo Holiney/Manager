@@ -481,8 +481,12 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       w.balance = w.due - w.paidOut; w.unpaidH = Math.max(0, w.h - w.paidH);
     });
     const paid = sum(pay, (p) => p.amount), payoutsTotal = sum(po, (p) => p.amount);
+    /* money the owner paid to other people out of his own pocket (client money was not enough yet); he gets it back */
+    const oid = ownerId(), payoutsOthers = sum(po.filter((p) => p.wid !== oid), (p) => p.amount);
+    const fronted = Math.max(0, Math.min(-(paid - exCommon - payoutsTotal), payoutsOthers));
+    if (W[oid]) { W[oid].fronted = fronted; W[oid].due += fronted; W[oid].balance += fronted; }
     return {
-      hourly, margin, price, expenses, exUnpaid, exCommon, hours, net, rate, labor, W, ids, paid, payoutsTotal,
+      hourly, margin, fronted, price, expenses, exUnpaid, exCommon, hours, net, rate, labor, W, ids, paid, payoutsTotal,
       remaining: Math.max(0, price - paid), over: Math.max(0, paid - price), cash: paid - exCommon - payoutsTotal
     };
   }
@@ -805,6 +809,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       '<div class="pline"><span>' + hrs(w.h) + ' год × ' + eur(w.payRate) + '</span><span class="num">' + eur(w.earned) + '</span></div>' +
       (w.margin ? '<div class="pline"><span>різниця за ставками</span><span class="num">+' + eur(w.margin) + '</span></div>' : '') +
       '<div class="pline"><span>матеріали</span><span class="num">+' + eur(w.comp) + '</span></div>' +
+      (w.fronted > 0 ? '<div class="pline"><span>виплатив за інших зі своїх</span><span class="num">+' + eur(w.fronted) + '</span></div>' : '') +
       '<div class="pline"><span>виплачено</span><span class="num">' + (w.paidOut > 0 ? '−' : '') + eur(w.paidOut) + '</span></div>' +
       '<div class="pline left"><span>лишилось</span><span class="num ' + (Math.abs(w.balance) < 0.005 && w.due > 0 ? 'done' : 'owe') + '">' + eur(w.balance) + '</span></div></div>';
   }
@@ -821,7 +826,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       '<span class="pill mode">' + (c.hourly ? 'погодинна оплата' : 'фіксована ціна') + '</span></div>';
     h += '<div class="statusbar" role="group" aria-label="Статус роботи">' + ['pending', 'in_progress', 'done'].map((s) => '<button data-act="status" data-v="' + s + '" aria-pressed="' + (j.status === s) + '">' + STATUS[s] + '</button>').join('') + '</div>';
 
-    const active = c.ids.filter((id) => c.W[id].h > 0 || c.W[id].comp > 0 || c.W[id].paidOut > 0 || c.W[id].margin);
+    const active = c.ids.filter((id) => c.W[id].h > 0 || c.W[id].comp > 0 || c.W[id].paidOut > 0 || c.W[id].margin || c.W[id].fronted);
     const calcRows = c.hourly
       ? '<div><dt>Робота за ставками</dt><dd class="num">' + eur(c.labor) + '</dd></div>' + (c.margin ? '<div><dt class="mute">з них ваша різниця</dt><dd class="num">' + eur(c.margin) + '</dd></div>' : '') + '<div><dt>Матеріали за рахунком</dt><dd class="num">+' + eur(c.expenses) + '</dd></div>'
       : '<div><dt>Матеріали</dt><dd class="num">−' + eur(c.expenses) + '</dd></div><div class="tot"><dt>Чистий прибуток</dt><dd class="num ' + (c.net < 0 ? 'neg' : '') + '">' + eur(c.net) + '</dd></div><div><dt class="mute">Ставка за годину</dt><dd class="num">' + eur(c.rate) + ' · ' + hrs(c.hours) + ' год</dd></div>';
@@ -1091,7 +1096,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
           const t = sum(rowEls, (r) => num($('[data-role=a]', r).value)), after = c.cash - t;
           $('#po-total', f).textContent = eur(t);
           const n = $('#po-cash', f); n.className = 'formnote' + (after < -0.005 ? ' bad' : '');
-          n.textContent = 'У касі від клієнта: ' + eur(c.cash) + '. Після виплат: ' + eur(after) + (after < -0.005 ? ' (більше, ніж отримано від клієнта)' : '');
+          n.textContent = 'У касі від клієнта: ' + eur(c.cash) + '. Після виплат: ' + eur(after) + (after < -0.005 ? ' (різницю виплатите зі своїх, вона повернеться вам)' : '');
         };
         rowEls.forEach((r) => {
           const rate = c.W[r.dataset.wid] ? c.W[r.dataset.wid].payRate : 0;
