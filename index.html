@@ -136,6 +136,9 @@ h1, h2, h3, p { margin: 0; }
 .calc div { display: flex; justify-content: space-between; gap: 12px; }
 .calc dt, .calc dd { margin: 0; }
 .calc .tot { border-top: 1px solid var(--hero-line); padding-top: 8px; font-weight: 600; }
+.settled { opacity: .45; }
+.settled .dot, .settled .av { filter: grayscale(1); }
+.settled:focus-within, .porow.settled:hover { opacity: .8; }
 .pblock { background: rgba(255, 255, 255, .06); border-radius: 10px; padding: 12px; display: grid; gap: 2px; align-content: start; border-top: 3px solid var(--wh, var(--hero-mute)); }
 .pline { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: var(--hero-mute); margin-top: 6px; }
 .pline + .pline { margin-top: 2px; }
@@ -731,7 +734,10 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
     const t = totals();
     const cells = Object.keys(t.W).filter((id) => t.W[id].due || t.W[id].paidOut || S.workers.some((w) => w.id === id)).map((id) => {
       const w = t.W[id], left = w.due - w.paidOut;
-      return '<div class="' + wcls(id) + '"><div class="pname"><i class="dot"></i><span>' + esc(wname(id)) + '</span></div><div class="pbig">' + eur(left) + '</div>' +
+      return { id, w, left, settled: isSettled(w.due, left, w.paidOut) };
+    }).sort(byLeft).map((x) => {
+      const id = x.id, w = x.w, left = x.left;
+      return '<div class="' + wcls(id) + (x.settled ? ' settled' : '') + '"><div class="pname"><i class="dot"></i><span>' + esc(wname(id)) + '</span></div><div class="pbig">' + eur(left) + '</div>' +
         '<div class="plabel">з ' + eur(w.due) + ' зароблено</div></div>';
     }).join('');
     h += '<section class="slab" aria-label="Підсумок">' +
@@ -802,9 +808,12 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
     return h;
   }
 
+  /* a person is settled when something was due or paid and nothing is left; settled ones go last and look faded */
+  const isSettled = (due, left, paidOut) => Math.abs(left) < 0.005 && (due > 0.005 || paidOut > 0.005);
+  const byLeft = (a, b) => (a.settled - b.settled) || (b.left - a.left);
   function workerBlock(w, c) {
     const id = w.id;
-    return '<div class="pblock ' + wcls(id) + '"><div class="pname"><i class="dot"></i><span>' + esc(wname(id)) + '</span></div>' +
+    return '<div class="pblock ' + wcls(id) + (isSettled(w.due, w.balance, w.paidOut) ? ' settled' : '') + '"><div class="pname"><i class="dot"></i><span>' + esc(wname(id)) + '</span></div>' +
       '<div class="pbig">' + eur(w.due) + '</div><div class="plabel">належить</div>' +
       '<div class="pline"><span>' + hrs(w.h) + ' год × ' + eur(w.payRate) + '</span><span class="num">' + eur(w.earned) + '</span></div>' +
       (w.margin ? '<div class="pline"><span>різниця за ставками</span><span class="num">+' + eur(w.margin) + '</span></div>' : '') +
@@ -834,7 +843,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       '<div><div class="eyebrow">' + (c.hourly ? 'До оплати клієнтом' : 'Бюджет') + '</div><div class="big num">' + eur(c.price) + '</div></div>' +
       '<dl class="calc">' + calcRows + '</dl>' +
       (c.hours > 0 ? '<div class="hbar" role="img" aria-label="Розподіл годин">' + c.ids.filter((id) => c.W[id].h > 0).map((id) => '<i class="' + wcls(id) + '" style="width:' + (c.W[id].h / c.hours * 100) + '%"></i>').join('') + '</div>' : '') +
-      (active.length ? '<div class="wgrid">' + active.map((id) => workerBlock(c.W[id], c)).join('') + '</div>' : '<p class="hint">Додайте години, щоб розрахувати частки.</p>') +
+      (active.length ? '<div class="wgrid">' + active.map((id) => ({ id, settled: isSettled(c.W[id].due, c.W[id].balance, c.W[id].paidOut), left: c.W[id].balance })).sort(byLeft).map((x) => workerBlock(c.W[x.id], c)).join('') + '</div>' : '<p class="hint">Додайте години, щоб розрахувати частки.</p>') +
       (c.hourly && c.ids.some((id) => c.W[id].h > 0 && !c.W[id].rate) ? '<p class="hint">Для частини працівників ставка 0. Вкажіть її нижче.</p>' : '') + '</section>';
 
     {
@@ -1076,9 +1085,10 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
     const j = jobById(jobId), c = calc(j);
     let ids = c.ids.filter((id) => c.W[id].h > 0 || c.W[id].due > 0 || c.W[id].paidOut > 0);
     if (!ids.length) ids = c.ids.slice();
+    ids = ids.map((id) => ({ id, settled: isSettled(c.W[id].due, c.W[id].balance, c.W[id].paidOut), left: c.W[id].balance })).sort(byLeft).map((x) => x.id);
     const rows = ids.map((id) => {
       const w = c.W[id];
-      return '<div class="porow ' + wcls(id) + '" data-wid="' + esc(id) + '"><div class="who"><span class="av ' + wcls(id) + '">' + esc(ini(id)) + '</span><span class="grow"><b>' + esc(wname(id)) + '</b>' +
+      return '<div class="porow ' + wcls(id) + (isSettled(w.due, w.balance, w.paidOut) ? ' settled' : '') + '" data-wid="' + esc(id) + '"><div class="who"><span class="av ' + wcls(id) + '">' + esc(ini(id)) + '</span><span class="grow"><b>' + esc(wname(id)) + '</b>' +
         '<small>' + (w.payRate ? 'ставка ' + eur(w.payRate) + '/год · ' : '') + 'не виплачено ' + hrs(w.unpaidH) + ' год · лишилось ' + eur(w.balance) + '</small></span></div>' +
         '<div class="grid2"><div class="field"><label for="po-h-' + esc(id) + '">За скільки годин</label><input id="po-h-' + esc(id) + '" name="h_' + esc(id) + '" data-role="h" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div>' +
         '<div class="field"><label for="po-a-' + esc(id) + '">Сума, €</label><input id="po-a-' + esc(id) + '" name="a_' + esc(id) + '" data-role="a" class="num" type="number" inputmode="decimal" step="any" min="0" placeholder="0"></div></div></div>';
