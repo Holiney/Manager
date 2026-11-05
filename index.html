@@ -1606,7 +1606,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       case 'invoice': if (job) openInvoice(job); break;
       case 'inv-close': closeInvoice(); break;
       case 'inv-print': try { window.print(); } catch (e) { toast('Друк тут недоступний. Скористайтесь «Зберегти файл»'); } break;
-      case 'inv-file': { const jb = jobById(invJob); if (!jb) break; const doc = '<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рахунок</title><style>body{margin:0;background:#fff}' + INV_CSS + '</style></head><body>' + invoicePaper(jb) + '</body></html>';
+      case 'inv-file': { const jb = jobById(invJob); if (!jb) break; const doc = '<!doctype html><html lang="uk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Рахунок</title><style>body{margin:0;background:#fff}' + INV_CSS + '<\/style><\/head><body>' + invoicePaper(jb) + '<\/body><\/html>';
         try { await saveFile('rahunok-' + todayStr() + '.html', doc, 'text/html'); } catch (e) { if (!e || e.code !== 'declined') toast('Не вдалося зберегти файл'); } break; }
       case 'del-job': {
         const jid = job.id, cid = job.clientId;
