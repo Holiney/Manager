@@ -5,17 +5,23 @@ export default defineConfig({
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['pwa-192x192.png', 'pwa-512x512.png'],
+      includeAssets: ['apple-touch-icon.png', 'icon.svg'],
       manifest: {
+        id: '/',
         name: 'Майстерня',
         short_name: 'Майстерня',
         description: 'Облік робіт, годин, матеріалів і виплат',
-        theme_color: '#E8EDEB',
-        background_color: '#E8EDEB',
+        lang: 'uk',
+        start_url: '/',
+        scope: '/',
         display: 'standalone',
+        orientation: 'portrait',
+        theme_color: '#0E191D',
+        background_color: '#0E191D',
         icons: [
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' }
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+          { src: 'pwa-maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
       }
     })
