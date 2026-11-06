@@ -460,7 +460,8 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       j.pays = j.pays && typeof j.pays === 'object' ? j.pays : {};
       j.photos = Array.isArray(j.photos) ? j.photos : [];
       j.hours = j.hours || []; j.expenses = j.expenses || []; j.payments = j.payments || []; j.payouts = j.payouts || []; j.notes = j.notes || [];
-      j.expenses.forEach((e) => { if (e.paid == null) e.paid = true; });
+      const ownerFallback = (s.workers.find((w) => w.id === 'me') || s.workers[0]).id;
+      j.expenses.forEach((e) => { if (e.paid === false || !e.paidBy) e.paidBy = e.paidBy || ownerFallback; e.paid = true; e.refund = !!e.refund && e.paidBy !== 'common'; });
       deriveTeam(j, (s.workers.find((w) => w.id === 'me') || s.workers[0]).id);
     });
     return s;
@@ -506,13 +507,14 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       W[id] = {
         id, h: sum(hr.filter((x) => x.who === id), (x) => x.h), rate: hourly ? rateOf(j, id) : 0,
         comp: sum(ex.filter((e) => e.paid !== false && e.paidBy === id), (e) => e.amount),
-        paidOut: sum(po.filter((p) => p.wid === id), (p) => p.amount), paidH: sum(po.filter((p) => p.wid === id), (p) => p.hours)
+        refunded: sum(ex.filter((e) => e.refund && e.paidBy === id), (e) => e.amount),
+        paidOut: sum(po.filter((p) => p.wid === id), (p) => p.amount) + sum(ex.filter((e) => e.refund && e.paidBy === id), (e) => e.amount), paidH: sum(po.filter((p) => p.wid === id), (p) => p.hours)
       };
     });
     if (hourly) {
       const oid = ownerId();
       let m = 0; ids.forEach((id) => { W[id].pay = payOf(j, id); m += W[id].h * (W[id].rate - W[id].pay); });
-      if (m !== 0 && !W[oid]) { ids.unshift(oid); W[oid] = { id: oid, h: 0, rate: rateOf(j, oid), pay: rateOf(j, oid), comp: 0, paidOut: 0, paidH: 0 }; }
+      if (m !== 0 && !W[oid]) { ids.unshift(oid); W[oid] = { id: oid, h: 0, rate: rateOf(j, oid), pay: rateOf(j, oid), comp: 0, refunded: 0, paidOut: 0, paidH: 0 }; }
       ids.forEach((id) => { W[id].margin = 0; });
       if (W[oid]) W[oid].margin = m;
     }
@@ -527,17 +529,17 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       w.payRate = hourly ? w.pay : rate; w.earned = w.h * w.payRate; w.margin = w.margin || 0; w.due = w.earned + w.margin + w.comp;
       w.balance = w.due - w.paidOut; w.unpaidH = Math.max(0, w.h - w.paidH);
     });
-    const paid = sum(pay, (p) => p.amount), payoutsTotal = sum(po, (p) => p.amount);
+    const paidPay = sum(pay, (p) => p.amount), refundTotal = sum(ex.filter((e) => e.refund && e.paidBy !== 'common'), (e) => e.amount), paid = paidPay + refundTotal, payoutsTotal = sum(po, (p) => p.amount);
     /* money the owner paid to other people out of his own pocket (client money was not enough yet); he gets it back */
     const oid = ownerId(), fromOwn = (p) => p.src === 'own' && p.wid !== oid;
     const ownTotal = sum(po.filter(fromOwn), (p) => p.amount);
     const pool = po.filter((p) => !fromOwn(p)), poolTotal = sum(pool, (p) => p.amount);
-    const cashPool = paid - exCommon - poolTotal;
+    const cashPool = paidPay - exCommon - poolTotal;
     const legacyOthers = sum(pool.filter((p) => p.src == null && p.wid !== oid), (p) => p.amount);
     const fronted = ownTotal + Math.max(0, Math.min(-cashPool, legacyOthers));
     if (W[oid]) { W[oid].fronted = fronted; W[oid].due += fronted; W[oid].balance += fronted; }
     return {
-      hourly, margin, fronted, price, expenses, exUnpaid, exCommon, hours, net, rate, labor, W, ids, paid, payoutsTotal,
+      hourly, margin, fronted, price, expenses, exUnpaid, exCommon, hours, net, rate, labor, W, ids, paid, paidPay, refundTotal, payoutsTotal,
       remaining: Math.max(0, price - paid), over: Math.max(0, paid - price), cash: cashPool, ownTotal
     };
   }
@@ -782,7 +784,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
     S.jobs.forEach((j) => {
       const c = calc(j), bc = R.byClient[j.clientId] || (R.byClient[j.clientId] = { pay: 0, h: 0, mine: 0 });
       (j.payments || []).filter((x) => inR(x.date)).forEach((x) => { R.received += +x.amount || 0; bc.pay += +x.amount || 0; });
-      (j.expenses || []).filter((x) => inR(x.date)).forEach((x) => { R.materials += +x.amount || 0; });
+      (j.expenses || []).filter((x) => inR(x.date)).forEach((x) => { R.materials += +x.amount || 0; if (x.refund && x.paidBy !== 'common') { R.received += +x.amount || 0; bc.pay += +x.amount || 0; } });
       (j.payouts || []).filter((x) => inR(x.date)).forEach((x) => {
         const bw = R.byWorker[x.wid] || (R.byWorker[x.wid] = { h: 0, earned: 0, paid: 0 }); bw.paid += +x.amount || 0;
       });
@@ -937,12 +939,13 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       '<div class="pline"><span>' + hrs(w.h) + ' год × ' + eur(w.payRate) + '</span><span class="num">' + eur(w.earned) + '</span></div>' +
       (w.margin ? '<div class="pline"><span>різниця за ставками</span><span class="num">+' + eur(w.margin) + '</span></div>' : '') +
       '<div class="pline"><span>матеріали</span><span class="num">+' + eur(w.comp) + '</span></div>' +
+      (w.refunded > 0 ? '<div class="pline"><span>клієнт віддав за матеріали</span><span class="num">−' + eur(w.refunded) + '</span></div>' : '') +
       (w.fronted > 0 ? '<div class="pline"><span>виплатив за інших зі своїх</span><span class="num">+' + eur(w.fronted) + '</span></div>' : '') +
-      '<div class="pline"><span>виплачено</span><span class="num">' + (w.paidOut > 0 ? '−' : '') + eur(w.paidOut) + '</span></div>' +
+      '<div class="pline"><span>виплачено</span><span class="num">' + (w.paidOut - (w.refunded || 0) > 0 ? '−' : '') + eur(w.paidOut - (w.refunded || 0)) + '</span></div>' +
       '<div class="pline left"><span>лишилось</span><span class="num ' + (Math.abs(w.balance) < 0.005 && w.due > 0 ? 'done' : 'owe') + '">' + eur(w.balance) + '</span></div></div>';
   }
   const byDate = (a, b) => String(b.date || '').localeCompare(String(a.date || '')) || (b.at || 0) - (a.at || 0);
-  const expTag = (e) => e.paid === false ? '<span class="tag unpaid">Не оплачено</span>' : (e.paidBy === 'common' ? '<span class="tag common">З авансу</span>' : '<span class="tag ' + wcls(e.paidBy) + '">Платив ' + esc(wname(e.paidBy)) + '</span>');
+  const expTag = (e) => e.paidBy === 'common' ? '<span class="tag common">З авансу</span>' : '<span class="tag ' + wcls(e.paidBy) + '">Купив ' + esc(wname(e.paidBy)) + '</span>' + (e.refund ? ' <span class="tag common">Клієнт віддав</span>' : '');
 
   function jobHtml(j) {
     const c = calc(j), cl = clientById(j.clientId);
@@ -1004,7 +1007,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       (exps.length ? '<div class="rows">' + exps.map((e) => '<button class="entry" data-act="edit-expense" data-id="' + esc(e.id) + '"><span class="entry-main"><b>' + esc(e.what) + '</b><small>' + esc(fdate(e.date)) + ' ' + expTag(e) + '</small></span><span class="amt-out">' + eur(e.amount) + '</span></button>').join('') + '</div>' : '<div class="empty">Витрат ще немає.</div>') + '</section>';
 
     const pays = (j.payments || []).slice().sort(byDate);
-    h += '<section class="card"><div class="card-head"><h2>' + icon('euro') + 'Оплати від клієнта</h2><span class="total num">' + eur(c.paid) + '</span><button class="ib" data-act="add-payment" aria-label="Додати оплату">' + icon('plus') + '</button></div>' +
+    h += '<section class="card"><div class="card-head"><h2>' + icon('euro') + 'Оплати від клієнта</h2><span class="total num">' + eur(c.paidPay) + '</span><button class="ib" data-act="add-payment" aria-label="Додати оплату">' + icon('plus') + '</button></div>' +
       (pays.length ? '<div class="rows">' + pays.map((e) => '<button class="entry" data-act="edit-payment" data-id="' + esc(e.id) + '"><span class="entry-main"><b>' + esc(e.note || 'Оплата') + '</b><small>' + esc(fdate(e.date)) + '</small></span><span class="amt-out in">+' + eur(e.amount) + '</span></button>').join('') + '</div>' : '<div class="empty">Оплат ще немає.</div>') + '</section>';
 
     const pos = (j.payouts || []).slice().sort(byDate);
@@ -1164,26 +1167,27 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
       body: '<div class="field"><label for="x-amt">Сума, €</label><input id="x-amt" name="amount" type="number" inputmode="decimal" step="any" min="0" required class="amt" value="' + (e ? e.amount : '') + '" data-autofocus></div>' +
         '<div class="field"><label for="x-what">Що купили</label><input id="x-what" name="what" type="text" required placeholder="Плитка, клей, фуга…" value="' + esc(e ? e.what : '') + '"></div>' +
         '<div class="field"><label for="x-date">Дата</label><input id="x-date" name="date" type="date" required value="' + (e ? e.date : todayStr()) + '"></div>' +
-        '<div class="field"><span class="lbl">Оплачено постачальнику?</span>' + seg('paid', isPaid ? 'yes' : 'no', [{ v: 'yes', label: 'Так, оплачено' }, { v: 'no', label: 'Ні, ще винні', cls: 'bad' }]) + '</div>' +
-        '<div class="field" id="x-payer"><span class="lbl">Хто заплатив</span>' + seg('paidBy', e && e.paid !== false ? e.paidBy : pickWorker(j, lastPayer), workerOpts(j).concat([{ v: 'common', label: 'З авансу' }])) + '<p class="formnote" id="x-note"></p></div>',
+        ''+
+        '<div class="field" id="x-payer"><span class="lbl">Хто купив</span>' + seg('paidBy', e && e.paidBy ? e.paidBy : pickWorker(j, lastPayer), workerOpts(j).concat([{ v: 'common', label: 'З авансу' }])) + '<p class="formnote" id="x-note"></p></div>' +
+        '<div class="field" id="x-refund"><span class="lbl">Клієнт уже віддав гроші за це?</span>' + seg('refund', e && e.refund ? 'yes' : 'no', [{ v: 'no', label: 'Ще ні' }, { v: 'yes', label: 'Так, віддав' }]) + '<p class="formnote">Тоді тому, хто купив, нічого більше не винні за цей матеріал.</p></div>',
       onOpen(f) {
         const amt = $('#x-amt', f), adv = $('#paidBy-common', f), note = $('#x-note', f);
         const upd = () => {
-          const unpaid = f.querySelector('input[name=paid]:checked').value === 'no';
-          $('#x-payer', f).hidden = unpaid;
+          const pbv = f.querySelector('input[name=paidBy]:checked');
+          $('#x-refund', f).hidden = !pbv || pbv.value === 'common';
           const a = num(amt.value), ok = a > 0 && a <= available + 0.001;
           adv.disabled = !ok;
           if (!ok && adv.checked) $('#paidBy-' + pickWorker(j, lastPayer), f).checked = true;
           note.className = 'formnote' + (!ok && a > 0 ? ' bad' : '');
           note.textContent = 'Аванс у касі, доступно: ' + eur(Math.max(0, available));
         };
-        amt.addEventListener('input', upd); $$('input[name=paid]', f).forEach((r) => r.addEventListener('change', upd)); upd();
+        amt.addEventListener('input', upd); $$('input[name=paidBy]', f).forEach((r) => r.addEventListener('change', upd)); upd();
       },
       onSubmit(fd) {
         const amount = num(fd.get('amount')), what = String(fd.get('what') || '').trim(); if (!(amount > 0) || !what) return false;
-        const paid = fd.get('paid') !== 'no', pb = String(fd.get('paidBy') || '');
-        const data = { amount, what, date: String(fd.get('date')) || todayStr(), paid, paidBy: paid ? pb : null };
-        if (paid && pb !== 'common') lastPayer = pb;
+        const pb = String(fd.get('paidBy') || '');
+        const data = { amount, what, date: String(fd.get('date')) || todayStr(), paid: true, paidBy: pb, refund: pb !== 'common' && fd.get('refund') === 'yes' };
+        if (pb !== 'common') lastPayer = pb;
         change(() => { const x = jobById(jobId); if (e) Object.assign(x.expenses.find((y) => y.id === id), data); else x.expenses.push(Object.assign({ id: uid(), at: Date.now() }, data)); touch(x); }, null);
       },
       onDelete: e ? () => { change(() => { const x = jobById(jobId); x.expenses = x.expenses.filter((y) => y.id !== id); touch(x); }, 'Витрату видалено'); closeSheet(); } : null
@@ -1524,7 +1528,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
         mode: j.mode === 'hourly' ? 'hourly' : 'total', rates: j.rates && typeof j.rates === 'object' ? j.rates : {}, pays: j.pays && typeof j.pays === 'object' ? j.pays : {}, team: Array.isArray(j.team) ? j.team.map(String) : undefined,
         status: STATUS[j.status] ? j.status : 'pending', createdAt: j.createdAt || Date.now(), updatedAt: j.updatedAt || Date.now(),
         hours: (j.hours || []).map((h) => ({ id: String(h.id || uid()), who: String(h.who || h.worker || 'me'), h: num(h.h != null ? h.h : h.hours), date: toDate(h.date || h.timestamp || h.at), at: h.at || h.timestamp || Date.now() })),
-        expenses: (j.expenses || []).map((e) => { const paid = e.paid !== false; return { id: String(e.id || uid()), what: String(e.what != null ? e.what : (e.description || 'Витрата')), amount: num(e.amount), paid, paidBy: paid ? String(e.paidBy || 'me') : null, date: toDate(e.date || e.timestamp || e.at), at: e.at || e.timestamp || Date.now() }; }),
+        expenses: (j.expenses || []).map((e) => { const pb = String(e.paidBy || 'me'); return { id: String(e.id || uid()), what: String(e.what != null ? e.what : (e.description || 'Витрата')), amount: num(e.amount), paid: true, paidBy: pb, refund: !!e.refund && pb !== 'common', date: toDate(e.date || e.timestamp || e.at), at: e.at || e.timestamp || Date.now() }; }),
         payments: own.map((p) => ({ id: String(p.id || uid()), amount: num(p.amount), date: toDate(p.date || p.createdAt || p.at), note: p.note || '', at: p.at || p.createdAt || Date.now() })),
         payouts: (j.payouts || []).map((p) => ({ id: String(p.id || uid()), wid: String(p.wid || 'me'), amount: num(p.amount), hours: num(p.hours), date: toDate(p.date), note: p.note || '', at: p.at || Date.now() })),
         notes: (j.notes || []).map((n) => ({ id: String(n.id || uid()), text: String(n.text || ''), at: n.at || n.timestamp || Date.now(), struck: !!(n.struck != null ? n.struck : n.isStruck) }))
@@ -1566,7 +1570,7 @@ code { font-family: var(--f-num); font-size: 12px; background: var(--surface-2);
     const c2 = { id: uid(), name: 'Peeters Bouw', phone: '+32 9 123 45 67', address: 'Dorpsplein 3, Merelbeke', note: '', createdAt: Date.now(), updatedAt: Date.now(), sample: true };
     const mk = (cl, title, mode, price, rates, status, hours, exps, pays, pouts, notes) => ({ id: uid(), clientId: cl.id, title, mode, price, rates, status, createdAt: Date.now(), updatedAt: Date.now(), sample: true,
       hours: hours.map((x) => ({ id: uid(), who: x[0], h: x[1], date: d(x[2]), at: Date.now() })),
-      expenses: exps.map((x) => ({ id: uid(), what: x[0], amount: x[1], paidBy: x[2], paid: x[2] !== null, date: d(x[3]), at: Date.now() })),
+      expenses: exps.map((x) => ({ id: uid(), what: x[0], amount: x[1], paidBy: x[2] || 'me', paid: true, refund: false, date: d(x[3]), at: Date.now() })),
       payments: pays.map((x) => ({ id: uid(), amount: x[0], date: d(x[1]), note: x[2], at: Date.now() })),
       payouts: pouts.map((x) => ({ id: uid(), wid: x[0], amount: x[1], hours: x[2], date: d(x[3]), note: x[4], at: Date.now() })),
       notes: notes.map((t) => ({ id: uid(), text: t, at: Date.now(), struck: false })) });
